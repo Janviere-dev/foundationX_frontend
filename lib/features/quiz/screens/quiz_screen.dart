@@ -44,21 +44,21 @@ class _QuizScreenState extends State<QuizScreen> {
     ).addXP(widget.quiz.xpReward);
 
     Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (_) => QuizResultScreen(
-      score: score,
-      totalQuestions: widget.quiz.questions.length,
-      xpEarned: widget.quiz.xpReward,
-    )
-  ),
-);
+      context,
+      MaterialPageRoute(
+        builder: (_) => QuizResultScreen(
+          score: score,
+          totalQuestions: widget.quiz.questions.length,
+          xpEarned: widget.quiz.xpReward,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     debugPrint("Quiz title: ${widget.quiz.title}");
-debugPrint("Questions: ${widget.quiz.questions.length}"); 
+    debugPrint("Questions: ${widget.quiz.questions.length}");
     final q = widget.quiz.questions[currentQuestion];
 
     return Scaffold(
@@ -94,17 +94,25 @@ debugPrint("Questions: ${widget.quiz.questions.length}");
 
             const SizedBox(height: 16),
 
-            ...List.generate(
-              q.options.length,
-              (i) => RadioListTile<int>(
-                title: Text(q.options[i]),
-                value: i,
-                groupValue: selectedAnswers[currentQuestion],
-                onChanged: (value) {
-                  setState(() {
-                    selectedAnswers[currentQuestion] = value;
-                  });
-                },
+            // RadioListTile's groupValue/onChanged params are deprecated.
+            // The replacement is to wrap the group of Radio/RadioListTile
+            // widgets in a RadioGroup<T> ancestor that owns the
+            // groupValue + onChanged callback instead.
+            RadioGroup<int>(
+              groupValue: selectedAnswers[currentQuestion],
+              onChanged: (value) {
+                setState(() {
+                  selectedAnswers[currentQuestion] = value;
+                });
+              },
+              child: Column(
+                children: List.generate(
+                  q.options.length,
+                  (i) => RadioListTile<int>(
+                    title: Text(q.options[i]),
+                    value: i,
+                  ),
+                ),
               ),
             ),
 
