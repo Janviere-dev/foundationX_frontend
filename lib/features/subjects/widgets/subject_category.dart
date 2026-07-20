@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:foundationx/core/constants/app_spacing.dart';
+import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 
 class SubjectCategory extends StatelessWidget {
   final String title;
