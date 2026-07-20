@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foundationx/core/models/achievement.dart';
+import 'package:foundationx_frontend/core/models/achievement.dart';
 
 class AchievementProvider extends ChangeNotifier {
   final List<Achievement> _achievements = [

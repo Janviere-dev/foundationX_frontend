@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:foundationx/core/models/models.dart';
-import 'package:foundationx/core/theme/app_colors.dart';
-import 'package:foundationx/core/widgets/fx_card.dart';
+import 'package:foundationx_frontend/core/models/models.dart';
+import 'package:foundationx_frontend/core/theme/app_colors.dart';
+import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 
 class FXSubjectCard extends StatelessWidget {
   final SubjectModel subject;
