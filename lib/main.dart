@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:foundationx/core/providers/app_providers.dart';
-import 'package:foundationx/core/theme/app_theme.dart';
-import 'package:foundationx/features/home/screens/home_screen.dart';
+import 'package:foundationx_frontend/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/theme/app_theme.dart';
+import 'package:foundationx_frontend/features/home/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
