@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:foundationx/core/models/models.dart';
+import 'package:foundationx_frontend/core/models/models.dart';
 
 class XPProgressBar extends StatelessWidget {
   final UserModel user;

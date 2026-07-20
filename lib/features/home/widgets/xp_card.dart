@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:foundationx/core/constants/app_padding.dart';
-import 'package:foundationx/core/constants/app_radius.dart';
-import 'package:foundationx/core/constants/app_spacing.dart';
-import 'package:foundationx/core/widgets/fx_button.dart';
+import 'package:foundationx_frontend/core/constants/app_padding.dart';
+import 'package:foundationx_frontend/core/constants/app_radius.dart';
+import 'package:foundationx_frontend/core/constants/app_spacing.dart';
+import 'package:foundationx_frontend/core/widgets/fx_button.dart';
 
 class XPCard extends StatelessWidget {
   final int level;

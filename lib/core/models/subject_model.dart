@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foundationx/core/models/topic.dart';
+import 'package:foundationx_frontend/core/models/topic.dart';
 
 class SubjectModel {
   final String id;
