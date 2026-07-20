@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:foundationx/core/constants/app_spacing.dart';
-import 'package:foundationx/core/widgets/fx_section_title.dart';
-import 'package:foundationx/core/models/models.dart';
+import 'package:foundationx_frontend/core/constants/app_spacing.dart';
+import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
+import 'package:foundationx_frontend/core/models/models.dart';
 
 class SubjectList extends StatelessWidget {
   final List<SubjectModel> subjects;

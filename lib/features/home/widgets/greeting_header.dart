@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:foundationx/core/constants/app_padding.dart';
-import 'package:foundationx/core/constants/app_spacing.dart';
-import 'package:foundationx/core/widgets/fx_avatar.dart';
+import 'package:foundationx_frontend/core/constants/app_padding.dart';
+import 'package:foundationx_frontend/core/constants/app_spacing.dart';
+import 'package:foundationx_frontend/core/widgets/fx_avatar.dart';
 
 class GreetingHeader extends StatelessWidget {
   final String username;

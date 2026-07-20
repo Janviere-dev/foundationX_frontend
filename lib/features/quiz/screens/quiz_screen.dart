@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:foundationx/core/models/models.dart';
-import 'package:foundationx/core/providers/app_providers.dart';
-import 'package:foundationx/features/quiz/screens/quiz_result_screen.dart';
+import 'package:foundationx_frontend/core/models/models.dart';
+import 'package:foundationx_frontend/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/features/quiz/screens/quiz_result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   final QuizModel quiz;

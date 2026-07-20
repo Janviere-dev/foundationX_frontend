@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:foundationx/core/constants/app_spacing.dart';
-import 'package:foundationx/data/app_data.dart';
-import 'package:foundationx/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/constants/app_spacing.dart';
+import 'package:foundationx_frontend/data/app_data.dart';
+import 'package:foundationx_frontend/core/providers/app_providers.dart';
 
-import 'package:foundationx/features/home/widgets/continue_learning_section.dart';
-import 'package:foundationx/features/home/widgets/daily_challenge_card.dart';
-import 'package:foundationx/features/home/widgets/greeting_header.dart';
-import 'package:foundationx/features/home/widgets/recommended_section.dart';
-import 'package:foundationx/features/home/widgets/subject_list.dart';
-import 'package:foundationx/features/home/widgets/xp_card.dart';
-import 'package:foundationx/features/quiz/screens/quiz_screen.dart';
+import 'package:foundationx_frontend/features/home/widgets/continue_learning_section.dart';
+import 'package:foundationx_frontend/features/home/widgets/daily_challenge_card.dart';
+import 'package:foundationx_frontend/features/home/widgets/greeting_header.dart';
+import 'package:foundationx_frontend/features/home/widgets/recommended_section.dart';
+import 'package:foundationx_frontend/features/home/widgets/subject_list.dart';
+import 'package:foundationx_frontend/features/home/widgets/xp_card.dart';
+import 'package:foundationx_frontend/features/quiz/screens/quiz_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

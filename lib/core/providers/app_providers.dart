@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:foundationx/core/providers/lesson_provider.dart';
-import 'package:foundationx/core/models/models.dart';
-import 'package:foundationx/core/providers/theme_provider.dart';
-import 'package:foundationx/features/quiz/providers/quiz_provider.dart';
-import 'package:foundationx/core/providers/achievement_provider.dart';
+import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
+import 'package:foundationx_frontend/core/models/models.dart';
+import 'package:foundationx_frontend/core/providers/theme_provider.dart';
+import 'package:foundationx_frontend/features/quiz/providers/quiz_provider.dart';
+import 'package:foundationx_frontend/core/providers/achievement_provider.dart';
 
 class UserProvider extends ChangeNotifier {
   UserModel _user;
