@@ -1,51 +1,34 @@
-/// A single notification shown to the user (e.g. "Achievement unlocked!").
-///
-/// Named AppNotification instead of Notification to avoid clashing with
-/// Flutter's own foundation.dart Notification class.
-class AppNotification {
-  final String id;
-  final String title;
-  final String body;
-  final DateTime timestamp;
-  final bool read;
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-  const AppNotification({
-    required this.id,
-    required this.title,
-    required this.body,
-    required this.timestamp,
-    this.read = false,
-  });
+import 'package:foundationx_frontend/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/theme/app_theme.dart';
+import 'package:foundationx_frontend/features/home/screens/home_screen.dart';
 
-  AppNotification copyWith({
-    bool? read,
-  }) {
-    return AppNotification(
-      id: id,
-      title: title,
-      body: body,
-      timestamp: timestamp,
-      read: read ?? this.read,
-    );
-  }
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'body': body,
-      'timestamp': timestamp.toIso8601String(),
-      'read': read,
-    };
-  }
+  runApp(
+    MultiProvider(
+      providers: AppProviders.providers(prefs),
+      child: const MyApp(),
+    ),
+  );
+}
 
-  factory AppNotification.fromJson(Map<String, dynamic> json) {
-    return AppNotification(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      body: json['body'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      read: json['read'] as bool? ?? false,
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'FoundationX',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.light,
+      home: const HomeScreen(),
     );
   }
 }

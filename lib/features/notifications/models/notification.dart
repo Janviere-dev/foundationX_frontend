@@ -14,17 +14,13 @@ class AppNotification {
   });
 
   AppNotification copyWith({
-    String? id,
-    String? title,
-    String? body,
-    DateTime? timestamp,
     bool? read,
   }) {
     return AppNotification(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      timestamp: timestamp ?? this.timestamp,
+      id: id,
+      title: title,
+      body: body,
+      timestamp: timestamp,
       read: read ?? this.read,
     );
   }
@@ -48,22 +44,4 @@ class AppNotification {
       read: json['read'] as bool? ?? false,
     );
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is AppNotification &&
-        other.id == id &&
-        other.title == title &&
-        other.body == body &&
-        other.timestamp == timestamp &&
-        other.read == read;
-  }
-
-  @override
-  int get hashCode => Object.hash(id, title, body, timestamp, read);
-
-  @override
-  String toString() =>
-      'AppNotification(id: $id, title: $title, read: $read)';
 }
