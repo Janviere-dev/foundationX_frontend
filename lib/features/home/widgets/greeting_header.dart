@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:foundationx_frontend/core/constants/app_padding.dart';
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/widgets/fx_avatar.dart';
+import 'package:foundationx_frontend/features/notifications/screens/notifications_screen.dart';
 
 class GreetingHeader extends StatelessWidget {
   final String username;
@@ -16,29 +17,15 @@ class GreetingHeader extends StatelessWidget {
 
   String _greeting() {
     final hour = DateTime.now().hour;
-
-    if (hour < 12) {
-      return "Good Morning";
-    }
-
-    if (hour < 17) {
-      return "Good Afternoon";
-    }
-
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   }
 
   String _message() {
     final hour = DateTime.now().hour;
-
-    if (hour < 12) {
-      return "Let's make today a great learning day.";
-    }
-
-    if (hour < 17) {
-      return "Keep up the amazing progress.";
-    }
-
+    if (hour < 12) return "Let's make today a great learning day.";
+    if (hour < 17) return "Keep up the amazing progress.";
     return "Finish today stronger than you started.";
   }
 
@@ -97,7 +84,14 @@ class GreetingHeader extends StatelessWidget {
               Stack(
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen(),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.notifications_outlined),
                   ),
 
