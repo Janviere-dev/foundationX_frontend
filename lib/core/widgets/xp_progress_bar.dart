@@ -4,7 +4,13 @@ import 'package:foundationx_frontend/core/models/models.dart';
 
 class XPProgressBar extends StatelessWidget {
   final UserModel user;
-  const XPProgressBar({super.key, required this.user});
+  final double percent;
+
+  const XPProgressBar({
+    super.key,
+    required this.user,
+    required this.percent,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +28,7 @@ class XPProgressBar extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             LinearPercentIndicator(
-              percent: 0.65, // calculate from model
+              percent: percent.clamp(0.0, 1.0),
               lineHeight: 12,
               backgroundColor: Colors.grey.shade200,
               progressColor: Colors.orange,
