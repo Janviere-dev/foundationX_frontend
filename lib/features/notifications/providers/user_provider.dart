@@ -14,12 +14,10 @@ class UserProvider extends ChangeNotifier {
   UserProvider({
     this.name = 'Learner',
     this.avatarUrl,
-    int totalXp = 0,
-    int currentStreak = 0,
-    int longestStreak = 0,
-  })  : _totalXp = totalXp,
-        _currentStreak = currentStreak,
-        _longestStreak = longestStreak;
+    this._totalXp = 0,
+    this._currentStreak = 0,
+    this._longestStreak = 0,
+  });
 
   int get totalXp => _totalXp;
 
