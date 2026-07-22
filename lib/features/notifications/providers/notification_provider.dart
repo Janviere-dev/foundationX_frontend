@@ -8,14 +8,17 @@ import 'package:foundationx_frontend/features/notifications/models/notification.
 
 class NotificationProvider extends ChangeNotifier {
   static const String _storageKey = "notifications";
+  static const String _enabledKey = "notifications_enabled";
 
   final SharedPreferences prefs;
   final List<AppNotification> _notifications = [];
+  bool _enabled = true;
 
   Set<String> _seenUnlockedAchievementIds = {};
 
   NotificationProvider(this.prefs, {AchievementProvider? achievementProvider}) {
     _loadNotifications();
+    _enabled = prefs.getBool(_enabledKey) ?? true;
 
     if (achievementProvider != null) {
       _seenUnlockedAchievementIds = achievementProvider.achievements
@@ -32,6 +35,15 @@ class NotificationProvider extends ChangeNotifier {
   List<AppNotification> get notifications => List.unmodifiable(_notifications);
 
   int get unreadCount => _notifications.where((n) => !n.read).length;
+
+  bool get enabled => _enabled;
+
+  Future<void> setEnabled(bool value) async {
+    if (_enabled == value) return;
+    _enabled = value;
+    await prefs.setBool(_enabledKey, value);
+    notifyListeners();
+  }
 
   void _onAchievementsChanged(AchievementProvider achievementProvider) {
     final currentlyUnlocked = achievementProvider.achievements
