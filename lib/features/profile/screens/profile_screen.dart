@@ -10,6 +10,7 @@ import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/core/widgets/fx_stat_card.dart';
 import 'package:foundationx_frontend/core/widgets/xp_progress_bar.dart';
+import 'package:foundationx_frontend/features/profile/screens/achievements_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -111,6 +112,15 @@ class ProfileScreen extends StatelessWidget {
             title: 'Achievements',
             subtitle:
                 '${unlockedAchievements.length}/${achievementProvider.achievements.length} unlocked',
+            actionText: 'View all',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AchievementsScreen(),
+                ),
+              );
+            },
           ),
 
           FXCard(
