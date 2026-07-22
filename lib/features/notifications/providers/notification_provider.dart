@@ -14,6 +14,8 @@ class NotificationProvider extends ChangeNotifier {
   final List<AppNotification> _notifications = [];
   bool _enabled = true;
 
+  // Tracks which achievement ids were already unlocked last time we
+  // checked, so we only fire a notification for newly-unlocked ones.
   Set<String> _seenUnlockedAchievementIds = {};
 
   NotificationProvider(this.prefs, {AchievementProvider? achievementProvider}) {
@@ -38,6 +40,9 @@ class NotificationProvider extends ChangeNotifier {
 
   bool get enabled => _enabled;
 
+  /// Settings screen calls this from the notifications toggle. When
+  /// disabled, addNotification() becomes a no-op — achievement unlocks
+  /// still happen, they just won't create a notification while muted.
   Future<void> setEnabled(bool value) async {
     if (_enabled == value) return;
     _enabled = value;
@@ -63,6 +68,8 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void addNotification({required String title, required String body}) {
+    if (!_enabled) return;
+
     final notification = AppNotification(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       title: title,

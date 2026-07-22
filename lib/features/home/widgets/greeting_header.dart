@@ -4,6 +4,7 @@ import 'package:foundationx_frontend/core/constants/app_padding.dart';
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/widgets/fx_avatar.dart';
 import 'package:foundationx_frontend/features/notifications/screens/notifications_screen.dart';
+import 'package:foundationx_frontend/features/settings/screens/settings_screen.dart';
 
 class GreetingHeader extends StatelessWidget {
   final String username;
@@ -123,7 +124,13 @@ class GreetingHeader extends StatelessWidget {
               ),
 
               IconButton(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsScreen(),
+                        ),
+                      );
+                    },
                 icon: const Icon(Icons.settings_outlined),
               ),
             ],
