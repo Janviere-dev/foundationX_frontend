@@ -32,7 +32,6 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
-          // --- Header: avatar, name, grade/school ---
           Center(
             child: Column(
               children: [
@@ -65,7 +64,6 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // --- XP / level progress ---
           XPProgressBar(
             user: user,
             percent: userProvider.levelProgress,
@@ -73,7 +71,6 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // --- Stat cards: streak, level, XP ---
           Row(
             children: [
               Expanded(
@@ -107,7 +104,6 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // --- Achievements preview ---
           FXSectionTitle(
             title: 'Achievements',
             subtitle:
