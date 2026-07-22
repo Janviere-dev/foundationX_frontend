@@ -126,7 +126,6 @@ class XPCard extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          /// XP Text
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -161,7 +160,6 @@ class XPCard extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          /// Reward Card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
