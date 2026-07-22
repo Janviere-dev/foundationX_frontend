@@ -7,6 +7,7 @@ import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/providers/theme_provider.dart';
 import 'package:foundationx_frontend/features/quiz/providers/quiz_provider.dart';
 import 'package:foundationx_frontend/core/providers/achievement_provider.dart';
+import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
 class UserProvider extends ChangeNotifier {
   UserModel _user;
@@ -98,6 +99,13 @@ class AppProviders {
 
         ChangeNotifierProvider(
           create: (_) => AchievementProvider(),
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) => NotificationProvider(
+            prefs,
+            achievementProvider: context.read<AchievementProvider>(),
+          ),
         ),
       ];
 }
