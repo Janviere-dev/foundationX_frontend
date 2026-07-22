@@ -123,7 +123,13 @@ class GreetingHeader extends StatelessWidget {
               ),
 
               IconButton(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen(),
+                        ),
+                      );
+                    },
                 icon: const Icon(Icons.settings_outlined),
               ),
             ],
