@@ -10,6 +10,7 @@ import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/core/widgets/fx_stat_card.dart';
 import 'package:foundationx_frontend/core/widgets/xp_progress_bar.dart';
+import 'package:foundationx_frontend/features/profile/screens/achievements_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -31,7 +32,6 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
-          // --- Header: avatar, name, grade/school ---
           Center(
             child: Column(
               children: [
@@ -64,7 +64,6 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // --- XP / level progress ---
           XPProgressBar(
             user: user,
             percent: userProvider.levelProgress,
@@ -72,7 +71,6 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // --- Stat cards: streak, level, XP ---
           Row(
             children: [
               Expanded(
@@ -106,11 +104,19 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // --- Achievements preview ---
           FXSectionTitle(
             title: 'Achievements',
             subtitle:
                 '${unlockedAchievements.length}/${achievementProvider.achievements.length} unlocked',
+            actionText: 'View all',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AchievementsScreen(),
+                ),
+              );
+            },
           ),
 
           FXCard(
