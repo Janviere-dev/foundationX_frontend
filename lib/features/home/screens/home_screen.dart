@@ -12,6 +12,7 @@ import 'package:foundationx_frontend/features/home/widgets/greeting_header.dart'
 import 'package:foundationx_frontend/features/home/widgets/recommended_section.dart';
 import 'package:foundationx_frontend/features/home/widgets/subject_list.dart';
 import 'package:foundationx_frontend/features/home/widgets/xp_card.dart';
+import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<UserProvider>().user;
+    final unreadNotifications =
+        context.watch<NotificationProvider>().unreadCount;
 
     final mathSubject =
         AppData.subjects.firstWhere((subject) => subject.id == 'math');
@@ -37,7 +40,7 @@ class HomeScreen extends StatelessWidget {
               SliverToBoxAdapter(
                 child: GreetingHeader(
                   username: user.username,
-                  notifications: 3,
+                  notifications: unreadNotifications,
                 ),
               ),
 
