@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class QuizResultScreen extends StatelessWidget {
   final int score;
@@ -123,7 +124,7 @@ class QuizResultScreen extends StatelessWidget {
                   icon: const Icon(Icons.home),
                   label: const Text("Back to Home"),
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    context.go('/home');
                   },
                 ),
               ),
