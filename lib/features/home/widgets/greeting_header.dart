@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:foundationx_frontend/core/constants/app_padding.dart';
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/widgets/fx_avatar.dart';
-import 'package:foundationx_frontend/features/notifications/screens/notifications_screen.dart';
-import 'package:foundationx_frontend/features/settings/screens/settings_screen.dart';
 
 class GreetingHeader extends StatelessWidget {
   final String username;
@@ -86,12 +85,7 @@ class GreetingHeader extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const NotificationsScreen(),
-                        ),
-                      );
+                      context.push('/notifications');
                     },
                     icon: const Icon(Icons.notifications_outlined),
                   ),
@@ -124,13 +118,9 @@ class GreetingHeader extends StatelessWidget {
               ),
 
               IconButton(
-                onPressed: () {Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SettingsScreen(),
-                        ),
-                      );
-                    },
+                onPressed: () {
+                  context.push('/settings');
+                },
                 icon: const Icon(Icons.settings_outlined),
               ),
             ],
