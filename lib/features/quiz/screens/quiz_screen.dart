@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
-import 'package:foundationx_frontend/features/quiz/screens/quiz_result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   final QuizModel quiz;
@@ -43,15 +43,13 @@ class _QuizScreenState extends State<QuizScreen> {
       listen: false,
     ).addXP(widget.quiz.xpReward);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => QuizResultScreen(
-          score: score,
-          totalQuestions: widget.quiz.questions.length,
-          xpEarned: widget.quiz.xpReward,
-        ),
-      ),
+    context.push(
+      '/quiz-result',
+      extra: {
+        'score': score,
+        'totalQuestions': widget.quiz.questions.length,
+        'xpEarned': widget.quiz.xpReward,
+      },
     );
   }
 
