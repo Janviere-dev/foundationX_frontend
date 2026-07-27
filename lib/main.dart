@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/providers/theme_provider.dart';
 import 'package:foundationx_frontend/core/theme/app_theme.dart';
-import 'package:foundationx_frontend/features/home/screens/home_screen.dart';
+import 'package:foundationx_frontend/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,13 +26,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeProvider>().themeMode;
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'FoundationX',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      home: const HomeScreen(),
+      routerConfig: appRouter,
     );
   }
 }
