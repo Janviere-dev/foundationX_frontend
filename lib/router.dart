@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/features/auth/screens/login_screen.dart';
 import 'package:foundationx_frontend/features/auth/screens/register_screen.dart';
+import 'package:foundationx_frontend/features/onboarding/screens/splash_screen.dart';
+import 'package:foundationx_frontend/features/onboarding/screens/onboarding_screen.dart';
 import 'package:foundationx_frontend/features/home/screens/main_navigation.dart';
 import 'package:foundationx_frontend/features/subjects/screens/subject_detail_screen.dart';
 import 'package:foundationx_frontend/features/lesson/screens/lesson_detail_screen.dart';
@@ -13,8 +15,18 @@ import 'package:foundationx_frontend/features/notifications/screens/notification
 import 'package:foundationx_frontend/features/profile/screens/achievements_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/splash',
   routes: [
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
+
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
+    ),
+
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
