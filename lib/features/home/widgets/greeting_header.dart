@@ -6,81 +6,62 @@ import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/widgets/fx_avatar.dart';
 
 class GreetingHeader extends StatelessWidget {
-  final String username;
+  final String firstName;
+  final String lastName;
   final int notifications;
 
   const GreetingHeader({
     super.key,
-    required this.username,
+    required this.firstName,
+    required this.lastName,
     this.notifications = 0,
   });
 
   String _greeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
-  }
-
-  String _message() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return "Let's make today a great learning day.";
-    if (hour < 17) return "Keep up the amazing progress.";
-    return "Finish today stronger than you started.";
+    if (hour < 12) return "Good morning!";
+    if (hour < 17) return "Good afternoon!";
+    return "Good evening!";
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: AppPadding.screen,
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FXAvatar(
-            name: username,
-            radius: 28,
-            onTap: () {},
-          ),
-
-          const SizedBox(width: AppSpacing.md),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _greeting(),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-
-                const SizedBox(height: 2),
-
-                Text(
-                  username,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  _message(),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.color
-                            ?.withValues(alpha: 0.7),
-                      ),
-                ),
-              ],
-            ),
-          ),
-
           Row(
             children: [
+              FXAvatar(
+                name: firstName,
+                radius: AppSpacing.avatarSmall,
+                onTap: () {},
+              ),
+
+              const SizedBox(width: AppSpacing.sm),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _greeting(),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+
+                  const SizedBox(height: 2),
+
+                  Text(
+                    "$firstName $lastName".trim(),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+
+              const Spacer(),
+
               Stack(
                 children: [
                   IconButton(
@@ -124,6 +105,15 @@ class GreetingHeader extends StatelessWidget {
                 icon: const Icon(Icons.settings_outlined),
               ),
             ],
+          ),
+
+          const SizedBox(height: AppSpacing.sm),
+
+          Text(
+            "Personalize your studies starting from today.",
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ],
       ),
