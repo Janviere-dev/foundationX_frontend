@@ -1,6 +1,7 @@
 class UserModel {
-  final String id, name, email, grade, school, username;
+  final String id, name, firstName, lastName, email, grade, school, username;
   final int xpPoints, streak, level;
+  final List<String> subjects;
   final DateTime? lastDailyQuiz;
 
   const UserModel({
@@ -9,10 +10,13 @@ class UserModel {
     required this.email,
     required this.grade,
     required this.school,
+    this.firstName = '',
+    this.lastName = '',
     this.username = 'Student',
     this.xpPoints = 0,
     this.streak = 0,
     this.level = 1,
+    this.subjects = const [],
     this.lastDailyQuiz,
   });
 
@@ -30,10 +34,13 @@ class UserModel {
   return UserModel(
     id: id,
     name: name,
+    firstName: firstName,
+    lastName: lastName,
     email: email,
     grade: grade,
     school: school,
     username: username,
+    subjects: subjects,
     xpPoints: xpPoints ?? this.xpPoints,
     streak: streak ?? this.streak,
     level: level ?? this.level,
