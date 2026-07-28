@@ -6,11 +6,9 @@ import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
 
-import 'package:foundationx_frontend/features/home/widgets/continue_learning_section.dart';
 import 'package:foundationx_frontend/features/home/widgets/daily_challenge_card.dart';
 import 'package:foundationx_frontend/features/home/widgets/greeting_header.dart';
-import 'package:foundationx_frontend/features/home/widgets/recommended_section.dart';
-import 'package:foundationx_frontend/features/home/widgets/subject_list.dart';
+import 'package:foundationx_frontend/features/home/widgets/subject_cards_section.dart';
 import 'package:foundationx_frontend/features/home/widgets/xp_card.dart';
 import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
@@ -39,7 +37,8 @@ class HomeScreen extends StatelessWidget {
             slivers: [
               SliverToBoxAdapter(
                 child: GreetingHeader(
-                  username: user.username,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
                   notifications: unreadNotifications,
                 ),
               ),
@@ -83,8 +82,9 @@ class HomeScreen extends StatelessWidget {
               ),
 
               SliverToBoxAdapter(
-                child: ContinueLearningSection(
-                  lessons: AppData.lessons,
+                child: SubjectCardsSection(
+                  title: "My Subjects",
+                  subjectIds: user.subjects,
                 ),
               ),
 
@@ -93,18 +93,12 @@ class HomeScreen extends StatelessWidget {
               ),
 
               SliverToBoxAdapter(
-                child: SubjectList(
-                  subjects: AppData.subjects,
-                ),
-              ),
-
-              const SliverToBoxAdapter(
-                child: SizedBox(height: AppSpacing.xl),
-              ),
-
-              SliverToBoxAdapter(
-                child: RecommendedSection(
-                  lessons: AppData.lessons,
+                child: SubjectCardsSection(
+                  title: "Recommended For You",
+                  subjectIds: AppData.subjects
+                      .map((subject) => subject.id)
+                      .where((id) => !user.subjects.contains(id))
+                      .toList(),
                 ),
               ),
 
