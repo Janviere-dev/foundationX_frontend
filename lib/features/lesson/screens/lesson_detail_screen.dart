@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:foundationx_frontend/core/widgets/fx_app_bar.dart';
+import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
@@ -40,10 +40,8 @@ class LessonDetailScreen extends StatelessWidget {
       (s) => s.id == lesson.subjectId,
     );
 
-    return Scaffold(
-      appBar: FXAppBar(
-        title: lesson.title,
-      ),
+    return FXScaffold(
+      title: lesson.title,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

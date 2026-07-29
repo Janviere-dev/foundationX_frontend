@@ -4,16 +4,16 @@ import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/models/achievement.dart';
 import 'package:foundationx_frontend/core/providers/achievement_provider.dart';
-import 'package:foundationx_frontend/core/widgets/fx_app_bar.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
+import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const FXAppBar(title: 'Achievements'),
+    return FXScaffold(
+      title: 'Achievements',
       body: Consumer<AchievementProvider>(
         builder: (context, achievementProvider, _) {
           final achievements = achievementProvider.achievements;

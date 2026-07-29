@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/theme/app_colors.dart';
-import 'package:foundationx_frontend/core/widgets/fx_app_bar.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
+import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/core/widgets/fx_empty_state.dart';
 import 'package:foundationx_frontend/features/notifications/models/notification.dart';
 import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
@@ -14,26 +14,29 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: FXAppBar(
-        title: 'Notifications',
-        actions: [
-          Consumer<NotificationProvider>(
-            builder: (context, notificationProvider, _) {
-              if (notificationProvider.notifications.isEmpty) {
-                return const SizedBox.shrink();
-              }
+    return FXScaffold(
+      title: 'Notifications',
+      actions: [
+        Consumer<NotificationProvider>(
+          builder: (context, notificationProvider, _) {
+            if (notificationProvider.notifications.isEmpty) {
+              return const SizedBox.shrink();
+            }
 
-              return TextButton(
-                onPressed: notificationProvider.unreadCount == 0
-                    ? null
-                    : () => notificationProvider.markAllRead(),
-                child: const Text('Mark all read'),
-              );
-            },
-          ),
-        ],
-      ),
+            // Default TextButton foreground is colorScheme.primary, which
+            // is the same blue as the app bar background now - explicit
+            // white avoids invisible text (same class of bug as the
+            // earlier avatar-on-primaryContainer contrast issue).
+            return TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.white),
+              onPressed: notificationProvider.unreadCount == 0
+                  ? null
+                  : () => notificationProvider.markAllRead(),
+              child: const Text('Mark all read'),
+            );
+          },
+        ),
+      ],
       body: Consumer<NotificationProvider>(
         builder: (context, notificationProvider, _) {
           final notifications = notificationProvider.notifications;
