@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
-  
   const RegisterScreen({super.key});
 
   @override
@@ -12,20 +14,59 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  String name = "";
+  String firstName = "";
+  String lastName = "";
   String email = "";
   String password = "";
   String confirmPassword = "";
-  String school = "";
-  String grade = "JSS 1";
+
+  final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
   @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister(AuthProvider auth) async {
+    if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
+
+    final success = await auth.register(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+    );
+    if (!success || !mounted) return;
+
+    if (auth.needsProfileCompletion) {
+      context.go('/complete-profile');
+    } else {
+      context.go('/home');
+    }
+  }
+
+  Future<void> _handleGoogle(AuthProvider auth) async {
+    final success = await auth.signInWithGoogle();
+    if (!success || !mounted) return;
+
+    if (auth.needsProfileCompletion) {
+      context.go('/complete-profile');
+    } else {
+      context.go('/home');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     const primary = Color(0xFF315CFD);
     const background = Color(0xFFF5F7FC);
+    final auth = context.watch<AuthProvider>();
+    final isLoading = auth.status == AuthStatus.loading;
 
     return Scaffold(
       backgroundColor: background,
@@ -89,15 +130,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   child: Column(
                     children: [
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: "Full Name",
-                          prefixIcon: const Icon(Icons.person_outline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                      if (auth.status == AuthStatus.error &&
+                          (auth.errorMessage ?? '').isNotEmpty) ...[
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            auth.errorMessage!,
+                            style: TextStyle(color: Colors.red.shade700),
                           ),
                         ),
-                        onChanged: (v) => name = v,
+                      ],
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "First Name",
+                                prefixIcon: const Icon(Icons.person_outline),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              validator: (v) => (v == null || v.trim().isEmpty)
+                                  ? "Enter your first name"
+                                  : null,
+                              onSaved: (v) => firstName = v!.trim(),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "Last Name",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              validator: (v) => (v == null || v.trim().isEmpty)
+                                  ? "Enter your last name"
+                                  : null,
+                              onSaved: (v) => lastName = v!.trim(),
+                            ),
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 18),
@@ -111,12 +195,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        onChanged: (v) => email = v,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return "Enter your email";
+                          if (!v.contains('@')) return "Enter a valid email";
+                          return null;
+                        },
+                        onSaved: (v) => email = v!.trim(),
                       ),
 
                       const SizedBox(height: 18),
 
                       TextFormField(
+                        controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           labelText: "Password",
@@ -137,7 +227,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        onChanged: (v) => password = v,
+                        validator: (v) => (v == null || v.length < 6)
+                            ? "Password must be at least 6 characters"
+                            : null,
+                        onSaved: (v) => password = v!,
                       ),
 
                       const SizedBox(height: 18),
@@ -164,53 +257,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        onChanged: (v) => confirmPassword = v,
-                      ),
-
-                      const SizedBox(height: 18),
-
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: "School",
-                          prefixIcon: const Icon(Icons.apartment_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        onChanged: (v) => school = v,
-                      ),
-
-                      const SizedBox(height: 18),
-
-                      DropdownButtonFormField<String>(
-                        initialValue: grade,
-                        decoration: InputDecoration(
-                          labelText: "Grade",
-                          prefixIcon: const Icon(Icons.class_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        items: const [
-                          "JSS 1",
-                          "JSS 2",
-                          "JSS 3",
-                          "SSS 1",
-                          "SSS 2",
-                          "SSS 3",
-                        ]
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(e),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            grade = value!;
-                          });
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return "Confirm your password";
+                          if (v != _passwordController.text) return "Passwords don't match";
+                          return null;
                         },
+                        onSaved: (v) => confirmPassword = v!,
                       ),
 
                       const SizedBox(height: 30),
@@ -226,12 +278,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          onPressed: () => context.go('/home'),
-                          child: const Text(
-                            "Create Account",
+                          onPressed:
+                              isLoading ? null : () => _handleRegister(auth),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  "Create Account",
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              "or",
+                              style: TextStyle(color: Colors.grey.shade500),
+                            ),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.grey.shade300),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed:
+                              isLoading ? null : () => _handleGoogle(auth),
+                          icon: Image.asset(
+                            'assets/icons/google_logo.png',
+                            height: 20,
+                            width: 20,
+                          ),
+                          label: const Text(
+                            "Sign up with Google",
                             style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
                             ),
                           ),
                         ),

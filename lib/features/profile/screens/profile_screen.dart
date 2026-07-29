@@ -11,9 +11,33 @@ import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/core/widgets/fx_stat_card.dart';
 import 'package:foundationx_frontend/core/widgets/xp_progress_bar.dart';
+import 'package:foundationx_frontend/features/auth/providers/auth_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Log out?'),
+        content: const Text('You\'ll need to sign in again to continue.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+    await context.read<AuthProvider>().signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +184,22 @@ class ProfileScreen extends StatelessWidget {
                 const Divider(height: AppSpacing.lg),
                 _InfoRow(label: 'Username', value: user.username),
               ],
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.red,
+                side: const BorderSide(color: Colors.red),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: () => _handleLogout(context),
+              icon: const Icon(Icons.logout),
+              label: const Text('Log Out'),
             ),
           ),
         ],
