@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/providers/theme_provider.dart';
-import 'package:foundationx_frontend/core/widgets/fx_app_bar.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
+import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
@@ -56,13 +57,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final themeProvider = context.watch<ThemeProvider>();
     final notificationProvider = context.watch<NotificationProvider>();
 
-    return Scaffold(
-      appBar: const FXAppBar(title: 'Settings'),
+    return FXScaffold(
+      title: 'Settings',
       body: !_loaded
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
+                const FXSectionTitle(title: 'Account'),
+                FXCard(
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.person_outline),
+                    title: const Text('Edit Profile'),
+                    subtitle: const Text(
+                      'School, grade, subjects, and goals',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/edit-profile'),
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+
                 const FXSectionTitle(title: 'Appearance'),
                 FXCard(
                   child: SwitchListTile(

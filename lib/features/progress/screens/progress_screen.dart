@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
-import 'package:foundationx_frontend/core/widgets/fx_app_bar.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
+import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/core/widgets/fx_subject_card.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
@@ -27,8 +27,9 @@ class ProgressScreen extends StatelessWidget {
     final recentCompletions = lessonProvider.lessonHistory.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return Scaffold(
-      appBar: const FXAppBar(title: 'Progress', showBackButton: false),
+    return FXScaffold(
+      title: 'Progress',
+      showBackButton: false,
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [

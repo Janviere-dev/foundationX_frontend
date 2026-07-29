@@ -86,7 +86,10 @@ class UserProvider extends ChangeNotifier {
       grade: profile.grade,
       school: profile.school,
       username: profile.name,
+      gender: profile.gender,
       subjects: profile.subjects,
+      goals: profile.goals,
+      dateOfBirth: profile.dateOfBirth,
     );
 
     _recalculateLevel();

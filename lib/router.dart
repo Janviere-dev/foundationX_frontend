@@ -15,6 +15,7 @@ import 'package:foundationx_frontend/features/subjects/screens/subject_detail_sc
 import 'package:foundationx_frontend/features/lesson/screens/lesson_detail_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_result_screen.dart';
+import 'package:foundationx_frontend/features/profile/screens/edit_profile_screen.dart';
 import 'package:foundationx_frontend/features/settings/screens/settings_screen.dart';
 import 'package:foundationx_frontend/features/notifications/screens/notifications_screen.dart';
 import 'package:foundationx_frontend/features/profile/screens/achievements_screen.dart';
@@ -112,12 +113,13 @@ GoRouter buildRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/select-subjects',
         builder: (context, state) {
-
           final args = state.extra as Map;
 
           return SelectSubjectsScreen(
             school: args['school'] as String,
             grade: args['grade'] as String,
+            gender: args['gender'] as String,
+            dateOfBirth: DateTime.parse(args['dateOfBirth'] as String),
           );
         },
       ),
@@ -178,6 +180,11 @@ GoRouter buildRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
+      ),
+
+      GoRoute(
+        path: '/edit-profile',
+        builder: (context, state) => const EditProfileScreen(),
       ),
 
       GoRoute(
