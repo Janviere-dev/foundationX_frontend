@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
-import 'package:foundationx_frontend/core/widgets/fx_app_bar.dart';
+import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
 
 import 'package:foundationx_frontend/features/subjects/widgets/featured_subject.dart';
@@ -17,20 +17,16 @@ class SubjectsScreen extends StatelessWidget {
     final subjects = AppData.subjects;
 
     if (subjects.isEmpty) {
-      return Scaffold(
-        appBar: const FXAppBar(
-          title: "Subjects",
-        ),
+      return FXScaffold(
+        title: "Subjects",
         body: const Center(
           child: Text("No subjects available."),
         ),
       );
     }
 
-    return Scaffold(
-      appBar: const FXAppBar(
-        title: "Subjects",
-      ),
+    return FXScaffold(
+      title: "Subjects",
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
