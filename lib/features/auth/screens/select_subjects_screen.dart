@@ -6,14 +6,26 @@ import 'package:foundationx_frontend/core/widgets/fx_subject_chip.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
 import '../providers/auth_provider.dart';
 
+const _goalOptions = [
+  'Improving my GPA',
+  'Gaining leadership skills and self confidence',
+  'Improving english skills',
+  'Improve problem solving skills',
+  'Gain fundamentals in the selected subjects',
+];
+
 class SelectSubjectsScreen extends StatefulWidget {
   final String school;
   final String grade;
+  final String gender;
+  final DateTime dateOfBirth;
 
   const SelectSubjectsScreen({
     super.key,
     required this.school,
     required this.grade,
+    required this.gender,
+    required this.dateOfBirth,
   });
 
   @override
@@ -22,14 +34,43 @@ class SelectSubjectsScreen extends StatefulWidget {
 
 class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
   final Set<String> _selectedIds = {};
+  final Set<String> _selectedGoals = {};
+  final _othersController = TextEditingController();
+  bool _othersSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Rebuild on every keystroke so Continue enables/disables live as the
+    // student types a custom goal.
+    _othersController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _othersController.dispose();
+    super.dispose();
+  }
+
+  List<String> get _goals {
+    final goals = _selectedGoals.toList();
+    final other = _othersController.text.trim();
+    if (_othersSelected && other.isNotEmpty) goals.add(other);
+    return goals;
+  }
+
+  bool get _canContinue => _selectedIds.isNotEmpty && _goals.isNotEmpty;
 
   Future<void> _handleContinue(AuthProvider auth) async {
-    if (_selectedIds.isEmpty) return;
+    if (!_canContinue) return;
 
     final success = await auth.completeProfile(
       school: widget.school,
       grade: widget.grade,
+      gender: widget.gender,
+      dateOfBirth: widget.dateOfBirth,
       subjects: _selectedIds.toList(),
+      goals: _goals,
     );
     if (success && mounted) context.go('/welcome');
   }
@@ -45,7 +86,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
     return Scaffold(
       backgroundColor: background,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
@@ -71,7 +112,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               if (auth.status == AuthStatus.error &&
                   (auth.errorMessage ?? '').isNotEmpty) ...[
@@ -90,64 +131,183 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                 ),
               ],
 
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
-                    children: subjects.map((subject) {
-                      final selected = _selectedIds.contains(subject.id);
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                alignment: WrapAlignment.center,
+                children: subjects.map((subject) {
+                  final selected = _selectedIds.contains(subject.id);
 
-                      return FXSubjectChip(
-                        subject: subject,
-                        selected: selected,
-                        onTap: () {
-                          setState(() {
-                            if (selected) {
-                              _selectedIds.remove(subject.id);
-                            } else {
-                              _selectedIds.add(subject.id);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
+                  return FXSubjectChip(
+                    subject: subject,
+                    selected: selected,
+                    onTap: () {
+                      setState(() {
+                        if (selected) {
+                          _selectedIds.remove(subject.id);
+                        } else {
+                          _selectedIds.add(subject.id);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 32),
+
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "What are your goals?",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
 
-              SizedBox(
+              const SizedBox(height: 6),
+
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Select all goals that apply to you so we can personalize your dashboard and recommendations.",
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Container(
                 width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    ..._goalOptions.map((goal) {
+                      final selected = _selectedGoals.contains(goal);
+
+                      return CheckboxListTile(
+                        value: selected,
+                        activeColor: primary,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(
+                          goal,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value ?? false) {
+                              _selectedGoals.add(goal);
+                            } else {
+                              _selectedGoals.remove(goal);
+                            }
+                          });
+                        },
+                      );
+                    }),
+
+                    CheckboxListTile(
+                      value: _othersSelected,
+                      activeColor: primary,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: const Text(
+                        'Others',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      onChanged: (value) {
+                        setState(() => _othersSelected = value ?? false);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              if (_othersSelected) ...[
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _othersController,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    hintText: "Tell us what else you're hoping to achieve",
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  onPressed: (isLoading || _selectedIds.isEmpty)
-                      ? null
-                      : () => _handleContinue(auth),
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
+                ),
+              ],
+
+              const SizedBox(height: 32),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 55,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        )
-                      : const Text(
-                          "Continue",
+                        ),
+                        onPressed: isLoading ? null : () => context.pop(),
+                        child: const Text(
+                          "Back",
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    flex: 2,
+                    child: SizedBox(
+                      height: 55,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: (isLoading || !_canContinue)
+                            ? null
+                            : () => _handleContinue(auth),
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : const Text(
+                                "Continue",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
