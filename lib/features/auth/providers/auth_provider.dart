@@ -128,13 +128,16 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Called from the last step of the complete-profile wizard (subject
-  /// selection), once school, grade, and subjects have all been collected.
+  /// Called from the last step of the complete-profile wizard (subject +
+  /// goals selection), once every onboarding field has been collected.
   /// Writes the full profile to Firestore in one go.
   Future<bool> completeProfile({
     required String school,
     required String grade,
+    required DateTime dateOfBirth,
+    required String gender,
     required List<String> subjects,
+    required List<String> goals,
   }) async {
     _setLoading();
     try {
@@ -156,6 +159,9 @@ class AuthProvider extends ChangeNotifier {
         school: school,
         grade: grade,
         subjects: subjects,
+        dateOfBirth: dateOfBirth,
+        gender: gender,
+        goals: goals,
         photoUrl: firebaseUser.photoURL,
         provider: providerId == 'google.com' ? 'google' : 'password',
       );
@@ -165,6 +171,48 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (_) {
       _setError('Could not save your profile. Please try again.');
+      return false;
+    }
+  }
+
+  /// Called from Edit Profile (Settings) to update school/grade/subjects/
+  /// goals after onboarding is already complete. Reuses saveProfile since
+  /// it's the same "write the full profile" operation as completeProfile,
+  /// just triggered later and with different fields editable.
+  Future<bool> updateProfile({
+    required String school,
+    required String grade,
+    required List<String> subjects,
+    required List<String> goals,
+  }) async {
+    _setLoading();
+    try {
+      final current = _userProvider.user;
+
+      final profile = AppUser(
+        uid: current.id,
+        firstName: current.firstName,
+        lastName: current.lastName,
+        email: current.email,
+        school: school,
+        grade: grade,
+        subjects: subjects,
+        dateOfBirth: current.dateOfBirth,
+        gender: current.gender,
+        goals: goals,
+        photoUrl: FirebaseAuth.instance.currentUser?.photoURL,
+        provider: FirebaseAuth.instance.currentUser?.providerData
+                    .any((p) => p.providerId == 'google.com') ==
+                true
+            ? 'google'
+            : 'password',
+      );
+
+      final saved = await _authService.saveProfile(profile);
+      _applyProfile(saved);
+      return true;
+    } catch (_) {
+      _setError('Could not update your profile. Please try again.');
       return false;
     }
   }
