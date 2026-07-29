@@ -97,13 +97,6 @@ class GreetingHeader extends StatelessWidget {
                     ),
                 ],
               ),
-
-              IconButton(
-                onPressed: () {
-                  context.push('/settings');
-                },
-                icon: const Icon(Icons.settings_outlined),
-              ),
             ],
           ),
 
