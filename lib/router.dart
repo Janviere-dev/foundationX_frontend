@@ -10,6 +10,8 @@ import 'package:foundationx_frontend/features/auth/screens/register_screen.dart'
 import 'package:foundationx_frontend/features/auth/screens/select_subjects_screen.dart';
 import 'package:foundationx_frontend/features/auth/screens/verify_email_screen.dart';
 import 'package:foundationx_frontend/features/auth/screens/welcome_screen.dart';
+import 'package:foundationx_frontend/features/onboarding/screens/onboarding_screen.dart';
+import 'package:foundationx_frontend/features/onboarding/screens/splash_screen.dart';
 import 'package:foundationx_frontend/features/home/screens/main_navigation.dart';
 import 'package:foundationx_frontend/features/subjects/screens/subject_detail_screen.dart';
 import 'package:foundationx_frontend/features/lesson/screens/lesson_detail_screen.dart';
@@ -28,6 +30,8 @@ const _onboardingPaths = {
 
 
 const _autoForwardToHomePaths = {
+  '/splash',
+  '/onboarding',
   '/login',
   '/register',
   '/complete-profile',
@@ -35,7 +39,10 @@ const _autoForwardToHomePaths = {
 };
 
 /// Screens reachable while signed out, in addition to /login and /register.
-const _unauthenticatedAllowedPaths = {'/forgot-password'};
+/// /splash and /onboarding are the pre-login intro screens shown before a
+/// user has an account - they must stay reachable while logged out, or the
+/// redirect below would bounce straight to /login before they ever render.
+const _unauthenticatedAllowedPaths = {'/forgot-password', '/splash', '/onboarding'};
 
 /// Builds the app's router. [authProvider] doubles as GoRouter's
 /// [GoRouter.refreshListenable], so [AuthProvider.notifyListeners] — fired
@@ -44,7 +51,7 @@ const _unauthenticatedAllowedPaths = {'/forgot-password'};
 
 GoRouter buildRouter(AuthProvider authProvider) {
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/splash',
     refreshListenable: authProvider,
     redirect: (context, state) {
       final loggedIn = FirebaseAuth.instance.currentUser != null;
@@ -85,6 +92,16 @@ GoRouter buildRouter(AuthProvider authProvider) {
       return decision;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),

@@ -16,11 +16,13 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    SubjectsScreen(),
-    ProgressScreen(),
-    ProfileScreen(),
+  void _goToTab(int index) => setState(() => _currentIndex = index);
+
+  late final List<Widget> _screens = [
+    HomeScreen(onNavigateToTab: _goToTab),
+    const SubjectsScreen(),
+    const ProgressScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -31,11 +33,7 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: SafeArea(
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
+          onTap: _goToTab,
 
           type: BottomNavigationBarType.fixed,
           elevation: 12,
