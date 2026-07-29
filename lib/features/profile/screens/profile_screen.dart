@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/providers/achievement_provider.dart';
-import 'package:foundationx_frontend/core/widgets/fx_app_bar.dart';
+import 'package:foundationx_frontend/core/theme/app_colors.dart';
 import 'package:foundationx_frontend/core/widgets/fx_avatar.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
+import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/core/widgets/fx_stat_card.dart';
 import 'package:foundationx_frontend/core/widgets/xp_progress_bar.dart';
@@ -48,18 +49,27 @@ class ProfileScreen extends StatelessWidget {
     final unlockedAchievements =
         achievementProvider.achievements.where((a) => a.unlocked).toList();
 
-    return Scaffold(
-      appBar: const FXAppBar(
-        title: 'Profile',
-        showBackButton: false,
-      ),
+    return FXScaffold(
+      title: 'Profile',
+      showBackButton: false,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: () => context.push('/settings'),
+        ),
+      ],
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
           Center(
             child: Column(
               children: [
-                FXAvatar(name: user.name, radius: 40),
+                FXAvatar(
+                  name: user.name,
+                  radius: 44,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
 
                 const SizedBox(height: AppSpacing.md),
 
@@ -174,15 +184,34 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // --- Account details ---
-          const FXSectionTitle(title: 'Account'),
+          const FXSectionTitle(title: 'Account Information'),
 
           FXCard(
             child: Column(
               children: [
-                _InfoRow(label: 'Email', value: user.email),
-                const Divider(height: AppSpacing.lg),
-                _InfoRow(label: 'Username', value: user.username),
+                _AccountInfoRow(
+                  icon: Icons.person_outline,
+                  label: 'Name',
+                  value: user.name,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _AccountInfoRow(
+                  icon: Icons.email_outlined,
+                  label: 'Email',
+                  value: user.email,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _AccountInfoRow(
+                  icon: Icons.apartment_outlined,
+                  label: 'School',
+                  value: user.school,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _AccountInfoRow(
+                  icon: Icons.school_outlined,
+                  label: 'Grade',
+                  value: user.grade,
+                ),
               ],
             ),
           ),
@@ -191,11 +220,14 @@ class ProfileScreen extends StatelessWidget {
 
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
               onPressed: () => _handleLogout(context),
               icon: const Icon(Icons.logout),
@@ -208,32 +240,55 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class _InfoRow extends StatelessWidget {
+class _AccountInfoRow extends StatelessWidget {
+  final IconData icon;
   final String label;
   final String value;
 
-  const _InfoRow({required this.label, required this.value});
+  const _AccountInfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.color
-                    ?.withValues(alpha: 0.7),
-              ),
+        CircleAvatar(
+          radius: 20,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          child: Icon(
+            icon,
+            size: 20,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
         ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+
+        const SizedBox(width: AppSpacing.md),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.color
+                          ?.withValues(alpha: 0.7),
+                    ),
               ),
+              Text(
+                value.isEmpty ? '—' : value,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
         ),
       ],
     );

@@ -2,6 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:foundationx_frontend/core/constants/grade_options.dart';
+import 'package:foundationx_frontend/core/constants/gender_options.dart';
+
+const _months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
 class CompleteProfileScreen extends StatefulWidget {
   const CompleteProfileScreen({super.key});
@@ -15,14 +31,33 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   String school = "";
   String grade = GradeOptions.all.first;
+  String gender = GenderOptions.all.last;
+
+  int? _month;
+  int? _day;
+  int? _year;
+  String? _dobError;
 
   void _handleContinue() {
-    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _dobError = (_month == null || _day == null || _year == null)
+          ? "Select your full date of birth"
+          : null;
+    });
+
+    if (!_formKey.currentState!.validate() || _dobError != null) return;
     _formKey.currentState!.save();
+
+    final dateOfBirth = DateTime(_year!, _month!, _day!);
 
     context.push(
       '/select-subjects',
-      extra: {'school': school, 'grade': grade},
+      extra: {
+        'school': school,
+        'grade': grade,
+        'gender': gender,
+        'dateOfBirth': dateOfBirth.toIso8601String(),
+      },
     );
   }
 
@@ -30,6 +65,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   Widget build(BuildContext context) {
     const primary = Color(0xFF315CFD);
     const background = Color(0xFFF5F7FC);
+    final currentYear = DateTime.now().year;
+    final years = List.generate(80, (i) => currentYear - 5 - i);
 
     return Scaffold(
       backgroundColor: background,
@@ -94,6 +131,134 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                   child: Column(
                     children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Date of birth",
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 4,
+                            child: DropdownButtonFormField<int>(
+                              initialValue: _month,
+                              decoration: InputDecoration(
+                                labelText: "Month",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              items: List.generate(
+                                _months.length,
+                                (i) => DropdownMenuItem(
+                                  value: i + 1,
+                                  child: Text(_months[i]),
+                                ),
+                              ),
+                              onChanged: (value) =>
+                                  setState(() => _month = value),
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          Expanded(
+                            flex: 3,
+                            child: DropdownButtonFormField<int>(
+                              initialValue: _day,
+                              decoration: InputDecoration(
+                                labelText: "Day",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              items: List.generate(
+                                31,
+                                (i) => DropdownMenuItem(
+                                  value: i + 1,
+                                  child: Text('${i + 1}'),
+                                ),
+                              ),
+                              onChanged: (value) =>
+                                  setState(() => _day = value),
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          Expanded(
+                            flex: 3,
+                            child: DropdownButtonFormField<int>(
+                              initialValue: _year,
+                              decoration: InputDecoration(
+                                labelText: "Year",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              items: years
+                                  .map(
+                                    (y) => DropdownMenuItem(
+                                      value: y,
+                                      child: Text('$y'),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (value) =>
+                                  setState(() => _year = value),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      if (_dobError != null) ...[
+                        const SizedBox(height: 6),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _dobError!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 18),
+
+                      DropdownButtonFormField<String>(
+                        initialValue: gender,
+                        decoration: InputDecoration(
+                          labelText: "Gender",
+                          prefixIcon: const Icon(Icons.wc_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        items: GenderOptions.all
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            gender = value!;
+                          });
+                        },
+                        onSaved: (v) => gender = v ?? gender,
+                      ),
+
+                      const SizedBox(height: 18),
+
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: "School",
