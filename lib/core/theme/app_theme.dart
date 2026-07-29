@@ -19,6 +19,11 @@ class AppTheme {
         secondary: AppColors.primary,
         surface: AppColors.surfaceLight,
         error: AppColors.error,
+        // ColorScheme falls back primaryContainer to primary itself when
+        // unset, which made FXAvatar's initials (drawn in colorScheme.primary
+        // on a colorScheme.primaryContainer background) invisible - same
+        primaryContainer: AppColors.primaryLight,
+        onPrimaryContainer: AppColors.primary,
       ),
 
       scaffoldBackgroundColor: AppColors.backgroundLight,
@@ -181,6 +186,8 @@ class AppTheme {
       secondary: AppColors.primary,
       surface: AppColors.surfaceDark,
       error: AppColors.error,
+      primaryContainer: AppColors.primaryDark,
+      onPrimaryContainer: Colors.white,
     ),
 
     scaffoldBackgroundColor: AppColors.backgroundDark,
