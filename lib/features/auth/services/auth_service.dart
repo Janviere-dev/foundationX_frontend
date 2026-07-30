@@ -193,6 +193,20 @@ class AuthService {
     return profile;
   }
 
+  /// Enrolls the signed-in user in [subject] (its catalog name, e.g.
+  /// "Chemistry") via PATCH /api/users/subjects.
+  Future<void> addSubject(String subject) async {
+    final response = await http.patch(
+      Uri.parse('${ApiConfig.baseUrl}/api/users/subjects'),
+      headers: await _headers(),
+      body: jsonEncode({'subject': subject}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add subject (${response.statusCode})');
+    }
+  }
+
   Future<void> sendPasswordResetEmail(String email) {
     return _auth.sendPasswordResetEmail(email: email);
   }

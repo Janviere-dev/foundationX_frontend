@@ -59,9 +59,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
     if (localSubject != null) {
       context.push('/subject/${localSubject.id}');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${course.subject} content is coming soon.")),
-      );
+      context.push('/course', extra: course);
     }
   }
 

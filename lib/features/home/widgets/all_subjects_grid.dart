@@ -12,10 +12,9 @@ import 'package:foundationx_frontend/data/app_data.dart';
 /// Grid of every subject in the live backend catalog (GET /api/courses/) -
 /// not just the 4 locally-seeded ones with real lesson content, so Home
 /// doubles as a way to see the whole catalog. Tapping a subject that does
-/// have local content opens it as before; tapping one that doesn't yet
-/// (most of the catalog - content/quiz work for those comes later) shows
-/// a "coming soon" notice instead of navigating into a screen that has
-/// nothing to show for it.
+/// have local content opens it as before; tapping anything else opens
+/// CourseOverviewScreen (topics list + Join Now), since actual lesson
+/// content for those comes later.
 class AllSubjectsGrid extends StatefulWidget {
   final VoidCallback? onSeeAll;
 
@@ -137,9 +136,7 @@ class _CourseTile extends StatelessWidget {
         if (localSubject != null) {
           context.push('/subject/${localSubject.id}');
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("${course.subject} content is coming soon.")),
-          );
+          context.push('/course', extra: course);
         }
       },
       child: Container(

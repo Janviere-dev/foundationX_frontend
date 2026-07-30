@@ -218,6 +218,27 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Enrolls the student in a subject they hadn't picked during onboarding
+  /// (see CourseOverviewScreen's "Join Now"). Returns null on success, or
+  /// an error message to show.
+  ///
+  /// Deliberately does NOT touch `status`/notifyListeners() on this
+  /// provider - it's also GoRouter's refreshListenable, and notifying
+  /// while sitting on a route pushed with `extra` (like /course, which
+  /// carries a Course object that isn't encoded in the URL) makes
+  /// go_router rebuild that route without its extra, crashing with a
+  /// null-cast. UserProvider.addSubject's own notifyListeners is a
+  /// separate ChangeNotifier unrelated to routing, so that one is safe.
+  Future<String?> joinSubject(String subject) async {
+    try {
+      await _authService.addSubject(subject);
+      _userProvider.addSubject(subject);
+      return null;
+    } catch (_) {
+      return 'Could not join this subject. Please try again.';
+    }
+  }
+
   /// Sends a "reset your password" email. Doesn't sign anyone in - status
   /// goes back to idle on success, not authenticated.
   Future<bool> sendPasswordReset(String email) async {

@@ -64,6 +64,16 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reflects a subject the backend just confirmed was added (see
+  /// AuthProvider.joinSubject) - local-only update, the actual write
+  /// already happened server-side via PATCH /api/users/subjects.
+  void addSubject(String subject) {
+    if (_user.subjects.contains(subject)) return;
+
+    _user = _user.copyWith(subjects: [..._user.subjects, subject]);
+    notifyListeners();
+  }
+
   void addXP(int amount) {
     _user = _user.copyWith(
       xpPoints: _user.xpPoints + amount,

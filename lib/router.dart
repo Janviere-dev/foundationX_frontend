@@ -14,6 +14,7 @@ import 'package:foundationx_frontend/features/onboarding/screens/onboarding_scre
 import 'package:foundationx_frontend/features/onboarding/screens/splash_screen.dart';
 import 'package:foundationx_frontend/features/home/screens/main_navigation.dart';
 import 'package:foundationx_frontend/features/subjects/screens/subject_detail_screen.dart';
+import 'package:foundationx_frontend/features/subjects/screens/course_overview_screen.dart';
 import 'package:foundationx_frontend/features/lesson/screens/lesson_detail_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_result_screen.dart';
@@ -155,6 +156,13 @@ GoRouter buildRouter(AuthProvider authProvider) {
         path: '/subject/:id',
         builder: (context, state) => SubjectDetailScreen(
           subjectId: state.pathParameters['id']!,
+        ),
+      ),
+
+      GoRoute(
+        path: '/course',
+        builder: (context, state) => CourseOverviewScreen(
+          course: state.extra as Course,
         ),
       ),
 
