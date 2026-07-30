@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:foundationx_frontend/features/auth/models/course.dart';
-import 'package:foundationx_frontend/features/auth/services/courses_service.dart';
+import 'package:foundationx_frontend/core/models/course.dart';
+import 'package:foundationx_frontend/core/services/courses_service.dart';
+import 'package:foundationx_frontend/core/theme/course_visuals.dart';
 import 'package:foundationx_frontend/features/auth/widgets/course_chip.dart';
 import '../providers/auth_provider.dart';
 

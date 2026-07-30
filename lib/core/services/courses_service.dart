@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:foundationx_frontend/core/config/api_config.dart';
-import 'package:foundationx_frontend/features/auth/models/course.dart';
+import 'package:foundationx_frontend/core/models/course.dart';
 
 /// GET /api/courses/ has no security requirement in its OpenAPI schema -
 /// unlike the /api/users/* endpoints, it's not gated behind a Firebase ID

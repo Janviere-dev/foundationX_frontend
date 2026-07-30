@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
 
             SliverToBoxAdapter(
               child: ContinueLearningSection(
-                subjectIds: user.subjects,
+                subjectNames: user.subjects,
                 onSeeAll: () => onNavigateToTab?.call(1),
               ),
             ),
