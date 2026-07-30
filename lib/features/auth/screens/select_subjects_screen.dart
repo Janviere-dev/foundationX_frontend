@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:foundationx_frontend/core/widgets/fx_subject_chip.dart';
-import 'package:foundationx_frontend/data/app_data.dart';
+import 'package:foundationx_frontend/features/auth/models/course.dart';
+import 'package:foundationx_frontend/features/auth/services/courses_service.dart';
+import 'package:foundationx_frontend/features/auth/widgets/course_chip.dart';
 import '../providers/auth_provider.dart';
 
 const _goalOptions = [
@@ -33,7 +34,12 @@ class SelectSubjectsScreen extends StatefulWidget {
 }
 
 class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
-  final Set<String> _selectedIds = {};
+  final _coursesService = CoursesService();
+
+  List<Course>? _courses;
+  String? _coursesError;
+
+  final Set<String> _selectedSubjects = {};
   final Set<String> _selectedGoals = {};
   final _othersController = TextEditingController();
   bool _othersSelected = false;
@@ -44,6 +50,20 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
     // Rebuild on every keystroke so Continue enables/disables live as the
     // student types a custom goal.
     _othersController.addListener(() => setState(() {}));
+    _loadCourses();
+  }
+
+  Future<void> _loadCourses() async {
+    setState(() => _coursesError = null);
+
+    try {
+      final courses = await _coursesService.fetchCourses();
+      if (!mounted) return;
+      setState(() => _courses = courses);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _coursesError = 'Could not load subjects. Please try again.');
+    }
   }
 
   @override
@@ -59,7 +79,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
     return goals;
   }
 
-  bool get _canContinue => _selectedIds.isNotEmpty && _goals.isNotEmpty;
+  bool get _canContinue => _selectedSubjects.isNotEmpty && _goals.isNotEmpty;
 
   Future<void> _handleContinue(AuthProvider auth) async {
     if (!_canContinue) return;
@@ -69,7 +89,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
       grade: widget.grade,
       gender: widget.gender,
       dateOfBirth: widget.dateOfBirth,
-      subjects: _selectedIds.toList(),
+      subjects: _selectedSubjects.toList(),
       goals: _goals,
     );
     if (success && mounted) context.go('/welcome');
@@ -81,7 +101,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
     const background = Color(0xFFF5F7FC);
     final auth = context.watch<AuthProvider>();
     final isLoading = auth.status == AuthStatus.loading;
-    final subjects = AppData.subjects;
+    final courses = _courses;
 
     return Scaffold(
       backgroundColor: background,
@@ -131,28 +151,49 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                 ),
               ],
 
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                alignment: WrapAlignment.center,
-                children: subjects.map((subject) {
-                  final selected = _selectedIds.contains(subject.id);
+              if (_coursesError != null)
+                Column(
+                  children: [
+                    Text(
+                      _coursesError!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.red.shade700),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _loadCourses,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                )
+              else if (courses == null)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: CircularProgressIndicator(),
+                )
+              else
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  alignment: WrapAlignment.center,
+                  children: courses.map((course) {
+                    final selected = _selectedSubjects.contains(course.subject);
 
-                  return FXSubjectChip(
-                    subject: subject,
-                    selected: selected,
-                    onTap: () {
-                      setState(() {
-                        if (selected) {
-                          _selectedIds.remove(subject.id);
-                        } else {
-                          _selectedIds.add(subject.id);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
+                    return CourseChip(
+                      name: course.subject,
+                      selected: selected,
+                      onTap: () {
+                        setState(() {
+                          if (selected) {
+                            _selectedSubjects.remove(course.subject);
+                          } else {
+                            _selectedSubjects.add(course.subject);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
 
               const SizedBox(height: 32),
 

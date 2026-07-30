@@ -15,8 +15,12 @@ class AuthService {
 
   /// Firebase ID tokens expire hourly and the SDK auto-refreshes them
   /// under the hood, so this is fetched fresh per request rather than
-  /// cached on the service.
-  Future<String> _idToken() async {
+  /// cached on the service. [forceRefresh] mints a brand-new token instead
+  /// of returning the cached one - needed before extend_info, since the
+  /// backend reads email_verified off the token's own claim rather than
+  /// the request body, and the cached token can still carry the
+  /// pre-verification value.
+  Future<String> _idToken({bool forceRefresh = false}) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw StateError(
@@ -24,7 +28,7 @@ class AuthService {
       );
     }
 
-    final token = await user.getIdToken();
+    final token = await user.getIdToken(forceRefresh);
     if (token == null) {
       throw StateError('Failed to obtain a Firebase ID token.');
     }
@@ -32,8 +36,8 @@ class AuthService {
     return token;
   }
 
-  Future<Map<String, String>> _headers() async => {
-        'Authorization': 'Bearer ${await _idToken()}',
+  Future<Map<String, String>> _headers({bool forceRefreshToken = false}) async => {
+        'Authorization': 'Bearer ${await _idToken(forceRefresh: forceRefreshToken)}',
         'Content-Type': 'application/json',
       };
 
@@ -165,6 +169,12 @@ class AuthService {
   }
 
   Future<AppUser> saveProfile(AppUser profile) async {
+    // reload() pulls the latest emailVerified status down from Firebase,
+    // then forcing the token refresh (rather than reusing a cached one)
+    // mints a new token whose own email_verified claim reflects it - the
+    // backend sets email_verified from that claim, not from this body.
+    await _auth.currentUser?.reload();
+
     final body = {
       ...profile.toApiMap(),
       'updated_at': DateTime.now().toUtc().toIso8601String(),
@@ -172,7 +182,7 @@ class AuthService {
 
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/api/users/extend_info'),
-      headers: await _headers(),
+      headers: await _headers(forceRefreshToken: true),
       body: jsonEncode(body),
     );
 
