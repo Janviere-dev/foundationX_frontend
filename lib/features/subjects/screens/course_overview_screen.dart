@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/models/models.dart';
@@ -106,13 +107,14 @@ class _CourseOverviewScreenState extends State<CourseOverviewScreen> {
                 ...topics.asMap().entries.map((entry) {
                   final index = entry.key;
                   final topicName = entry.value.key;
-                  final subtopicCount = entry.value.value.length;
+                  final subtopics = entry.value.value;
 
                   return Card(
                     elevation: 1,
                     margin: const EdgeInsets.only(bottom: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    child: ListTile(
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
                       leading: CircleAvatar(
                         backgroundColor: color,
                         child: Text(
@@ -121,7 +123,19 @@ class _CourseOverviewScreenState extends State<CourseOverviewScreen> {
                         ),
                       ),
                       title: Text(topicName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: Text('$subtopicCount lessons'),
+                      subtitle: Text('${subtopics.length} lessons'),
+                      children: subtopics.map((subtopic) {
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                          leading: Icon(Icons.play_circle_outline, color: color),
+                          title: Text(subtopic),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () => context.push(
+                            '/catalog-lesson',
+                            extra: {'subject': widget.course.subject, 'lessonTitle': subtopic},
+                          ),
+                        );
+                      }).toList(),
                     ),
                   );
                 }),

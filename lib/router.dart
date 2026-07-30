@@ -16,6 +16,7 @@ import 'package:foundationx_frontend/features/home/screens/main_navigation.dart'
 import 'package:foundationx_frontend/features/subjects/screens/subject_detail_screen.dart';
 import 'package:foundationx_frontend/features/subjects/screens/course_overview_screen.dart';
 import 'package:foundationx_frontend/features/lesson/screens/lesson_detail_screen.dart';
+import 'package:foundationx_frontend/features/lesson/screens/catalog_lesson_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_result_screen.dart';
 import 'package:foundationx_frontend/features/profile/screens/edit_profile_screen.dart';
@@ -173,6 +174,18 @@ GoRouter buildRouter(AuthProvider authProvider) {
 
           return LessonDetailScreen(
             lesson: lesson,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/catalog-lesson',
+        builder: (context, state) {
+          final args = state.extra as Map;
+
+          return CatalogLessonScreen(
+            subject: args['subject'] as String,
+            lessonTitle: args['lessonTitle'] as String,
           );
         },
       ),
