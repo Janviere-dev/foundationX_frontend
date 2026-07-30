@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
-import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
+import 'package:foundationx_frontend/core/theme/providers/lesson_provider.dart';
 
 class SubjectDetailScreen extends StatelessWidget {
   final String subjectId;

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
-import 'package:foundationx_frontend/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/theme/providers/app_providers.dart';
 
 import 'package:foundationx_frontend/features/home/widgets/daily_challenge_card.dart';
 import 'package:foundationx_frontend/features/home/widgets/greeting_header.dart';

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_duration.dart';
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
-import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
+import 'package:foundationx_frontend/core/theme/providers/lesson_provider.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/data/app_data.dart';

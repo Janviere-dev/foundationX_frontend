@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/models/achievement.dart';
-import 'package:foundationx_frontend/core/providers/achievement_provider.dart';
+import 'package:foundationx_frontend/core/theme/providers/achievement_provider.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 

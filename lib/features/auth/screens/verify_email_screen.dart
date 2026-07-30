@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:foundationx_frontend/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/theme/providers/app_providers.dart';
 import '../providers/auth_provider.dart';
 
 class VerifyEmailScreen extends StatefulWidget {

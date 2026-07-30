@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
-import 'package:foundationx_frontend/core/providers/app_providers.dart';
-import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
+import 'package:foundationx_frontend/core/theme/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/theme/providers/lesson_provider.dart';
 
 class LessonDetailScreen extends StatelessWidget {
   final LessonModel lesson;
