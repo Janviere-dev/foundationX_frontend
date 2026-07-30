@@ -172,25 +172,50 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                   child: CircularProgressIndicator(),
                 )
               else
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  alignment: WrapAlignment.center,
-                  children: courses.map((course) {
-                    final selected = _selectedSubjects.contains(course.subject);
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: groupCoursesByCategory(courses).map((entry) {
+                    final category = entry.key;
+                    final categoryCourses = entry.value;
 
-                    return CourseChip(
-                      name: course.subject,
-                      selected: selected,
-                      onTap: () {
-                        setState(() {
-                          if (selected) {
-                            _selectedSubjects.remove(course.subject);
-                          } else {
-                            _selectedSubjects.add(course.subject);
-                          }
-                        });
-                      },
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            category,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: categoryCourses.map((course) {
+                              final selected =
+                                  _selectedSubjects.contains(course.subject);
+
+                              return CourseChip(
+                                name: course.subject,
+                                selected: selected,
+                                onTap: () {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedSubjects.remove(course.subject);
+                                    } else {
+                                      _selectedSubjects.add(course.subject);
+                                    }
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     );
                   }).toList(),
                 ),

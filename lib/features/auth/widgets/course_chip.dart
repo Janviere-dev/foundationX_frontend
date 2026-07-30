@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:foundationx_frontend/core/theme/app_colors.dart';
+import 'package:foundationx_frontend/features/auth/models/course.dart';
 
 /// Icon + color per course name, so the onboarding picker doesn't render
 /// everything as identical gray chips - the backend catalog doesn't send
@@ -57,6 +58,72 @@ IconData iconForCourse(String subjectName) =>
 
 Color colorForCourse(String subjectName) =>
     _courseColors[subjectName] ?? _fallbackColor;
+
+/// Groups the onboarding subject picker into sections, since the backend
+/// catalog doesn't send a category itself - just `subject`/`topics`.
+const List<String> _categoryOrder = [
+  'Sciences',
+  'Languages',
+  'Humanities & Social Studies',
+  'Business & Economics',
+  'Technology',
+];
+
+const Map<String, String> _courseCategories = {
+  'Mathematics': 'Sciences',
+  'Physics': 'Sciences',
+  'Chemistry': 'Sciences',
+  'Biology': 'Sciences',
+  'English': 'Languages',
+  'French': 'Languages',
+  'Kinyarwanda': 'Languages',
+  'History': 'Humanities & Social Studies',
+  'Geography': 'Humanities & Social Studies',
+  'Psychology': 'Humanities & Social Studies',
+  'Leadership and Self-Development': 'Humanities & Social Studies',
+  'Economics': 'Business & Economics',
+  'Accounting': 'Business & Economics',
+  'Entrepreneurship': 'Business & Economics',
+  'Finance': 'Business & Economics',
+  'Computer Science': 'Technology',
+  'Backend Engineering': 'Technology',
+  'Agentic AI (LangChain)': 'Technology',
+};
+
+const String _fallbackCategory = 'Other';
+
+String categoryForCourse(String subjectName) =>
+    _courseCategories[subjectName] ?? _fallbackCategory;
+
+/// Buckets [courses] by category in a fixed, curated order - Sciences,
+/// Languages, Humanities & Social Studies, Business & Economics,
+/// Technology - with anything not in the map (a subject the backend adds
+/// later) grouped under "Other" at the end instead of disappearing.
+List<MapEntry<String, List<Course>>> groupCoursesByCategory(
+  List<Course> courses,
+) {
+  final grouped = <String, List<Course>>{};
+
+  for (final course in courses) {
+    grouped.putIfAbsent(categoryForCourse(course.subject), () => []).add(course);
+  }
+
+  final ordered = <MapEntry<String, List<Course>>>[];
+
+  for (final category in _categoryOrder) {
+    final coursesInCategory = grouped[category];
+    if (coursesInCategory != null) {
+      ordered.add(MapEntry(category, coursesInCategory));
+    }
+  }
+
+  final others = grouped[_fallbackCategory];
+  if (others != null) {
+    ordered.add(MapEntry(_fallbackCategory, others));
+  }
+
+  return ordered;
+}
 
 /// Same visual language as FXSubjectChip, but keyed by a plain name/icon/
 /// color instead of a full SubjectModel - the backend course catalog
