@@ -60,6 +60,42 @@ IconData iconForCourse(String subjectName) =>
 Color colorForCourse(String subjectName) =>
     _courseColors[subjectName] ?? _fallbackColor;
 
+/// One-line subject blurb for the subject grid cards. Curated by hand,
+/// same as icon/color - the backend catalog doesn't send one.
+const Map<String, String> _courseDescriptions = {
+  'Mathematics': 'Algebra, Geometry, Statistics & more',
+  'English': 'Grammar, Literature, Comprehension',
+  'Biology': 'Cells, Ecology, Human Biology',
+  'Chemistry': 'Atoms, Reactions, Periodic Table',
+  'Physics': 'Forces, Energy, Waves & more',
+  'Geography': 'Physical & Human Geography',
+  'Computer Science': 'Programming, Databases, Networking',
+  'History': 'Rwandan, African & World History',
+  'Economics': 'Micro, Macro & International Trade',
+  'Accounting': 'Double Entry, Ledgers, Statements',
+  'Entrepreneurship': 'Business Planning & Marketing',
+  'French': 'Grammar, Vocabulary, Communication',
+  'Kinyarwanda': 'Grammar, Literature, Communication',
+  'Leadership and Self-Development': 'Self Awareness & Leadership Skills',
+  'Finance': 'Budgeting, Banking & Investing',
+  'Psychology': 'Human Development & Mental Health',
+  'Backend Engineering': 'APIs, FastAPI, Databases & Auth',
+  'Agentic AI (LangChain)': 'LLMs, RAG & AI Agents',
+};
+
+/// Falls back to the course's own first two topic groups for a subject
+/// added later that isn't in the curated map above, instead of leaving
+/// the description blank.
+String descriptionForCourse(Course course) {
+  final curated = _courseDescriptions[course.subject];
+  if (curated != null) return curated;
+
+  final topicGroups = course.topics.keys.toList();
+  if (topicGroups.isEmpty) return 'Explore the topics in this subject';
+
+  return topicGroups.take(2).join(', ');
+}
+
 const List<String> _categoryOrder = [
   'Sciences',
   'Languages',
