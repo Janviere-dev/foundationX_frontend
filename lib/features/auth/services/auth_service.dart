@@ -1,28 +1,67 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:foundationx_frontend/core/config/api_config.dart';
 import 'package:foundationx_frontend/features/auth/models/app_user.dart';
 
 class AuthService {
-  AuthService({FirebaseAuth? auth, FirebaseFirestore? firestore})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthService({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> get _usersRef =>
-      _firestore.collection('users');
+  /// Firebase ID tokens expire hourly and the SDK auto-refreshes them
+  /// under the hood, so this is fetched fresh per request rather than
+  /// cached on the service. [forceRefresh] mints a brand-new token instead
+  /// of returning the cached one - needed before extend_info, since the
+  /// backend reads email_verified off the token's own claim rather than
+  /// the request body, and the cached token can still carry the
+  /// pre-verification value.
+  Future<String> _idToken({bool forceRefresh = false}) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw StateError(
+        'No signed-in Firebase user to authenticate the request with.',
+      );
+    }
 
+    final token = await user.getIdToken(forceRefresh);
+    if (token == null) {
+      throw StateError('Failed to obtain a Firebase ID token.');
+    }
+
+    return token;
+  }
+
+  Future<Map<String, String>> _headers({bool forceRefreshToken = false}) async => {
+        'Authorization': 'Bearer ${await _idToken(forceRefresh: forceRefreshToken)}',
+        'Content-Type': 'application/json',
+      };
+
+  /// 200 -> the stored backend profile. 404 -> no backend record exists
+  /// yet for this uid (create_user was never called for them), which the
+  /// caller treats the same as today's "no profile yet" case.
   Future<AppUser?> fetchProfile(String uid) async {
-    final doc = await _usersRef.doc(uid).get();
-    if (!doc.exists) return null;
-    return AppUser.fromMap(uid, doc.data()!);
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/users/me'),
+      headers: await _headers(),
+    );
+
+    if (response.statusCode == 404) return null;
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch profile (${response.statusCode})');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return AppUser.fromApi(data, photoUrl: _auth.currentUser?.photoURL);
   }
 
   /// Builds an identity-only profile (name/email, no school/grade/subjects)
-  /// for a Firebase user with no Firestore doc yet, deriving the sign-in
+  /// for a Firebase user with no backend record yet, deriving the sign-in
   /// provider from Firebase's own provider data. [AppUser.isComplete] is
   /// false on the result, which is what tells AuthProvider to route into
   /// the complete-profile wizard. Public because AuthProvider also uses
@@ -59,6 +98,22 @@ class AuthService {
     return localPart[0].toUpperCase() + localPart.substring(1);
   }
 
+  /// Tells the backend a Firebase-authenticated user exists so it can
+  /// create its own record for them. Safe to call after every sign-in -
+  /// it no-ops server-side if the user already exists.
+  Future<void> createUser() async {
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/api/users/create_user'),
+      headers: await _headers(),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      debugPrint(
+        'AuthService.createUser: unexpected status ${response.statusCode}',
+      );
+    }
+  }
+
   Future<AppUser> registerWithEmail({
     required String firstName,
     required String lastName,
@@ -72,6 +127,7 @@ class AuthService {
     final user = credential.user!;
     await user.updateDisplayName('$firstName $lastName'.trim());
     await user.sendEmailVerification();
+    await createUser();
 
     return AppUser(
       uid: user.uid,
@@ -92,10 +148,11 @@ class AuthService {
       password: password,
     );
     final user = credential.user!;
+    await createUser();
     return await fetchProfile(user.uid) ?? partialProfileFor(user);
   }
 
-  /// Signs in with Google. Returns the existing Firestore profile for a
+  /// Signs in with Google. Returns the existing backend profile for a
   /// returning user, or an identity-only profile (see [partialProfileFor])
   /// for a first-time sign-in that still needs school/grade/subjects
   /// collected via [saveProfile].
@@ -106,15 +163,32 @@ class AuthService {
     final credential = GoogleAuthProvider.credential(idToken: idToken);
     final userCredential = await _auth.signInWithCredential(credential);
     final user = userCredential.user!;
+    await createUser();
 
     return await fetchProfile(user.uid) ?? partialProfileFor(user);
   }
 
   Future<AppUser> saveProfile(AppUser profile) async {
-    await _usersRef.doc(profile.uid).set({
-      ...profile.toMap(),
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    // reload() pulls the latest emailVerified status down from Firebase,
+    // then forcing the token refresh (rather than reusing a cached one)
+    // mints a new token whose own email_verified claim reflects it - the
+    // backend sets email_verified from that claim, not from this body.
+    await _auth.currentUser?.reload();
+
+    final body = {
+      ...profile.toApiMap(),
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    };
+
+    final response = await http.put(
+      Uri.parse('${ApiConfig.baseUrl}/api/users/extend_info'),
+      headers: await _headers(forceRefreshToken: true),
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save profile (${response.statusCode})');
+    }
 
     return profile;
   }

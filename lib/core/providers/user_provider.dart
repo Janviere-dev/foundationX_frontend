@@ -20,7 +20,9 @@ class UserProvider extends ChangeNotifier {
           xpPoints: 2450,
           streak: 7,
           level: 1,
-          subjects: const ['math', 'english', 'biology', 'physics'],
+          // Subject names, not local ids - matches what the backend now
+          // stores after onboarding (see ContinueLearningSection).
+          subjects: const ['Mathematics', 'English', 'Biology', 'Physics'],
         ) {
     _recalculateLevel();
   }

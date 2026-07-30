@@ -15,19 +15,21 @@ import 'package:foundationx_frontend/data/app_data.dart';
 /// onboarding) - same real data as the old horizontal card section, just a
 /// row-based layout to match the current design.
 class ContinueLearningSection extends StatelessWidget {
-  final List<String> subjectIds;
+  final List<String> subjectNames;
   final VoidCallback? onSeeAll;
 
   const ContinueLearningSection({
     super.key,
-    required this.subjectIds,
+    required this.subjectNames,
     this.onSeeAll,
   });
 
   @override
   Widget build(BuildContext context) {
+    // user.subjects holds the backend course names now (e.g.
+    // "Mathematics"), not local subject ids - match on name.
     final subjects =
-        AppData.subjects.where((subject) => subjectIds.contains(subject.id)).toList();
+        AppData.subjects.where((subject) => subjectNames.contains(subject.name)).toList();
 
     if (subjects.isEmpty) {
       return const SizedBox.shrink();
