@@ -5,6 +5,7 @@ import 'package:foundationx_frontend/features/home/screens/home_screen.dart';
 import 'package:foundationx_frontend/features/subjects/screens/subjects_screen.dart';
 import 'package:foundationx_frontend/features/progress/screens/progress_screen.dart';
 import 'package:foundationx_frontend/features/profile/screens/profile_screen.dart';
+import 'package:foundationx_frontend/features/chat/screens/chat_list_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -21,6 +22,7 @@ class _MainNavigationState extends State<MainNavigation> {
   late final List<Widget> _screens = [
     HomeScreen(onNavigateToTab: _goToTab),
     const SubjectsScreen(),
+    const ChatListScreen(),
     const ProgressScreen(),
     const ProfileScreen(),
   ];
@@ -55,6 +57,11 @@ class _MainNavigationState extends State<MainNavigation> {
               icon: Icon(Icons.menu_book_outlined),
               activeIcon: Icon(Icons.menu_book),
               label: 'Subjects',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.smart_toy_outlined),
+              activeIcon: Icon(Icons.smart_toy),
+              label: 'Assistant',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.leaderboard_outlined),

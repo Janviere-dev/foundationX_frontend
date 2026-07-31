@@ -25,6 +25,7 @@ import 'package:foundationx_frontend/features/assessment/screens/quiz_taking_scr
 import 'package:foundationx_frontend/features/assessment/screens/quiz_grading_screen.dart';
 import 'package:foundationx_frontend/features/assessment/screens/quiz_report_screen.dart';
 import 'package:foundationx_frontend/features/assessment/screens/quiz_history_screen.dart';
+import 'package:foundationx_frontend/features/chat/screens/chat_conversation_screen.dart';
 import 'package:foundationx_frontend/features/profile/screens/edit_profile_screen.dart';
 import 'package:foundationx_frontend/features/settings/screens/settings_screen.dart';
 import 'package:foundationx_frontend/features/notifications/screens/notifications_screen.dart';
@@ -255,6 +256,17 @@ GoRouter buildRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/quiz-history',
         builder: (context, state) => const QuizHistoryScreen(),
+      ),
+
+      GoRoute(
+        path: '/chat-conversation',
+        builder: (context, state) {
+          final args = state.extra as Map;
+
+          return ChatConversationScreen(
+            sessionId: args['sessionId'] as String?,
+          );
+        },
       ),
 
       GoRoute(

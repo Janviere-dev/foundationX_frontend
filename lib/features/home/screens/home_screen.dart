@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
               firstName: user.firstName.isEmpty ? user.name : user.firstName,
               streak: user.streak,
               notifications: unreadNotifications,
-              onAvatarTap: () => onNavigateToTab?.call(3),
+              onAvatarTap: () => onNavigateToTab?.call(4),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                 xp: user.xpPoints,
                 xpForNextLevel: userProvider.xpForNextLevel,
                 progress: userProvider.levelProgress,
-                onTap: () => onNavigateToTab?.call(2),
+                onTap: () => onNavigateToTab?.call(3),
               ),
             ),
 
