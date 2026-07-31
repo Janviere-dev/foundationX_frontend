@@ -27,17 +27,14 @@ static const String _lessonHistoryKey =
     return _completedLessons.contains(lessonId);
   }
 
+  /// All lesson content is generated on demand from the backend, so
+  /// there's no reason to gate lessons behind completing earlier ones -
+  /// every lesson is always open.
   bool isLessonUnlocked(
     String lessonId,
     List<String> topicLessonIds,
   ) {
-    final index = topicLessonIds.indexOf(lessonId);
-
-    if (index <= 0) {
-      return true;
-    }
-
-    return isCompleted(topicLessonIds[index - 1]);
+    return true;
   }
 
   /// Returns true if every lesson in the topic
