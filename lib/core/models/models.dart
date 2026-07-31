@@ -6,3 +6,4 @@ export 'package:foundationx_frontend/core/models/achievement.dart';
 export 'package:foundationx_frontend/core/models/quiz_model.dart';
 export 'package:foundationx_frontend/core/models/course.dart';
 export 'package:foundationx_frontend/core/models/generated_lesson_content.dart';
+export 'package:foundationx_frontend/core/models/quiz_assessment.dart';
