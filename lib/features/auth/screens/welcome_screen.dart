@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/theme/app_colors.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -10,7 +11,8 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const primary = Color(0xFF315CFD);
-    const background = Color(0xFFF5F7FC);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final background = isDark ? AppColors.backgroundDark : const Color(0xFFF5F7FC);
     final lastName = context.watch<UserProvider>().user.lastName;
 
     return Scaffold(
@@ -40,7 +42,8 @@ class WelcomeScreen extends StatelessWidget {
               Text(
                 "Welcome ${lastName.isEmpty ? '' : '$lastName '}to FoundationX",
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
@@ -52,7 +55,7 @@ class WelcomeScreen extends StatelessWidget {
                 "Your studies is our priority.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: isDark ? AppColors.textSecondaryDark : Colors.grey.shade600,
                   fontSize: 16,
                 ),
               ),

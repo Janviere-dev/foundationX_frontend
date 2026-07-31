@@ -60,6 +60,51 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
   Widget build(BuildContext context) {
     final color = colorForCourse(widget.quiz.subject);
     final questions = widget.quiz.questionDetails;
+
+    if (questions.isEmpty) {
+      // This pending quiz has no usable questions (most likely leftover
+      // from an earlier bug). It still has to be submitted - even empty
+      // - or the backend will keep returning it as "unfinished" and
+      // block every future quiz generation attempt with a 409.
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.quiz.subject),
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "This quiz couldn't be loaded properly. Submit it to clear it and start a fresh one.",
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                if (_error != null) ...[
+                  Text(_error!, style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
+                  const SizedBox(height: 12),
+                ],
+                FilledButton(
+                  style: FilledButton.styleFrom(backgroundColor: color),
+                  onPressed: _submitting ? null : _submit,
+                  child: _submitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        )
+                      : const Text('Submit & Clear'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final q = questions[_current];
     final isLast = _current == questions.length - 1;
 
@@ -69,89 +114,106 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
         backgroundColor: color,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            LinearProgressIndicator(
-              value: (_current + 1) / questions.length,
-              color: color,
-              backgroundColor: color.withValues(alpha: 0.15),
-            ),
+      // A ListView (rather than a Column mixing fixed-height header
+      // text with one Expanded child) so a long, multi-line question
+      // never squeezes the rest of the screen toward zero height -
+      // everything just scrolls instead.
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                LinearProgressIndicator(
+                  value: (_current + 1) / questions.length,
+                  color: color,
+                  backgroundColor: color.withValues(alpha: 0.15),
+                ),
 
-            const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-            Text(
-              'Question ${_current + 1}/${questions.length}',
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-            ),
+                Text(
+                  'Question ${_current + 1}/${questions.length}',
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                ),
 
-            const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-            Text(q.text, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(q.text, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
 
-            const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-            Expanded(
-              child: SingleChildScrollView(
-                child: RadioGroup<int>(
-                  groupValue: _selected[_current],
-                  onChanged: (value) => setState(() => _selected[_current] = value),
-                  child: Column(
-                    children: List.generate(
-                      q.options.length,
-                      (i) => Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        child: RadioListTile<int>(
-                          title: Text(q.options[i]),
-                          value: i,
-                          activeColor: color,
+                if (q.options.isEmpty)
+                  const Text('This question has no answer options.')
+                else
+                  RadioGroup<int>(
+                    key: ValueKey(_current),
+                    groupValue: _selected[_current],
+                    onChanged: (value) => setState(() => _selected[_current] = value),
+                    child: Column(
+                      children: List.generate(
+                        q.options.length,
+                        (i) => Card(
+                          key: ValueKey('$_current-$i'),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: RadioListTile<int>(
+                            title: Text(q.options[i]),
+                            value: i,
+                            activeColor: color,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            ),
 
-            if (_error != null) ...[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(_error!, style: const TextStyle(color: Colors.red)),
-              ),
-            ],
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton(
-                  onPressed: _current > 0 ? () => setState(() => _current--) : null,
-                  child: const Text('Previous'),
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: color),
-                  onPressed: _submitting
-                      ? null
-                      : () {
-                          if (isLast) {
-                            _submit();
-                          } else {
-                            setState(() => _current++);
-                          }
-                        },
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                        )
-                      : Text(isLast ? 'Submit' : 'Next'),
-                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(_error!, style: const TextStyle(color: Colors.red)),
+                ],
               ],
             ),
-          ],
-        ),
+          ),
+
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _current > 0 ? () => setState(() => _current--) : null,
+                      child: const Text('Previous'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(backgroundColor: color),
+                      onPressed: _submitting
+                          ? null
+                          : () {
+                              if (isLast) {
+                                _submit();
+                              } else {
+                                setState(() => _current++);
+                              }
+                            },
+                      child: _submitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                            )
+                          : Text(isLast ? 'Submit' : 'Next'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

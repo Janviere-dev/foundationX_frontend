@@ -6,6 +6,7 @@ import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/theme/course_visuals.dart';
 import 'package:foundationx_frontend/features/auth/providers/auth_provider.dart';
+import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
 /// Shown when a student taps a subject from the live catalog that isn't
 /// one of the 4 with real local lesson content. Lists the subject's
@@ -36,6 +37,13 @@ class _CourseOverviewScreenState extends State<CourseOverviewScreen> {
 
     if (!mounted) return;
     setState(() => _isJoining = false);
+
+    if (error == null) {
+      context.read<NotificationProvider>().addNotification(
+            title: 'New subject joined!',
+            body: 'You joined ${widget.course.subject}',
+          );
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(error ?? "You've joined ${widget.course.subject}!")),

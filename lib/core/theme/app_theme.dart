@@ -147,7 +147,8 @@ class AppTheme {
         backgroundColor: AppColors.primaryLight,
         selectedColor: AppColors.primary,
         secondarySelectedColor: AppColors.primary,
-        labelStyle: AppTextStyles.labelMedium,
+        labelStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.primary),
+        secondaryLabelStyle: AppTextStyles.labelMedium.copyWith(color: Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -305,6 +306,18 @@ class AppTheme {
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
+    ),
+
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.surfaceDark,
+      selectedColor: AppColors.primary,
+      secondarySelectedColor: AppColors.primary,
+      labelStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.textPrimaryDark),
+      secondaryLabelStyle: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+      side: const BorderSide(color: AppColors.borderDark),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
     ),
   );
 }

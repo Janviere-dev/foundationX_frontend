@@ -159,6 +159,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   DropdownButtonFormField<String>(
                     initialValue: _grade,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Grade',
                       prefixIcon: Icon(Icons.class_outlined),

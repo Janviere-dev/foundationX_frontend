@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:foundationx_frontend/core/constants/grade_options.dart';
 import 'package:foundationx_frontend/core/constants/gender_options.dart';
+import 'package:foundationx_frontend/core/theme/app_colors.dart';
 
 const _months = [
   'January',
@@ -64,7 +65,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   @override
   Widget build(BuildContext context) {
     const primary = Color(0xFF315CFD);
-    const background = Color(0xFFF5F7FC);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final background = isDark ? AppColors.backgroundDark : const Color(0xFFF5F7FC);
+    final cardColor = isDark ? AppColors.cardDark : Colors.white;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : Colors.grey.shade600;
     final currentYear = DateTime.now().year;
     final years = List.generate(80, (i) => currentYear - 5 - i);
 
@@ -95,9 +100,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
                 const SizedBox(height: 20),
 
-                const Text(
+                Text(
                   "Almost there",
                   style: TextStyle(
+                    color: textPrimary,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -109,7 +115,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   "Tell us a bit more about you, so we can personalize your learning.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: textSecondary,
                     fontSize: 15,
                   ),
                 ),
@@ -119,11 +125,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: .05),
+                        color: Colors.black.withValues(alpha: isDark ? .2 : .05),
                         blurRadius: 15,
                         offset: const Offset(0, 6),
                       )
@@ -147,6 +153,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             flex: 4,
                             child: DropdownButtonFormField<int>(
                               initialValue: _month,
+                              isExpanded: true,
                               decoration: InputDecoration(
                                 labelText: "Month",
                                 border: OutlineInputBorder(
@@ -171,6 +178,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             flex: 3,
                             child: DropdownButtonFormField<int>(
                               initialValue: _day,
+                              isExpanded: true,
                               decoration: InputDecoration(
                                 labelText: "Day",
                                 border: OutlineInputBorder(
@@ -195,6 +203,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             flex: 3,
                             child: DropdownButtonFormField<int>(
                               initialValue: _year,
+                              isExpanded: true,
                               decoration: InputDecoration(
                                 labelText: "Year",
                                 border: OutlineInputBorder(
@@ -234,6 +243,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
                       DropdownButtonFormField<String>(
                         initialValue: gender,
+                        isExpanded: true,
                         decoration: InputDecoration(
                           labelText: "Gender",
                           prefixIcon: const Icon(Icons.wc_outlined),
@@ -277,6 +287,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
                       DropdownButtonFormField<String>(
                         initialValue: grade,
+                        isExpanded: true,
                         decoration: InputDecoration(
                           labelText: "Grade",
                           prefixIcon: const Icon(Icons.class_outlined),

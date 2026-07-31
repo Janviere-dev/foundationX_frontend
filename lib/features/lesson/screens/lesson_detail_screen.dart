@@ -7,6 +7,7 @@ import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
 import 'package:foundationx_frontend/features/lesson/widgets/generated_lesson_body.dart';
+import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
 class LessonDetailScreen extends StatelessWidget {
   final LessonModel lesson;
@@ -87,12 +88,20 @@ class LessonDetailScreen extends StatelessWidget {
                   runSpacing: 12,
                   children: [
                     Chip(
-                      avatar: const Icon(Icons.schedule, size: 18),
-                      label: Text("${lesson.durationMinutes} min"),
+                      avatar: Icon(Icons.schedule, size: 18, color: subject.color),
+                      label: Text(
+                        "${lesson.durationMinutes} min",
+                        style: TextStyle(color: subject.color, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: subject.color.withValues(alpha: 0.15),
                     ),
                     Chip(
-                      avatar: const Icon(Icons.star, size: 18),
-                      label: Text("${lesson.xpReward} XP"),
+                      avatar: const Icon(Icons.star, size: 18, color: Colors.amber),
+                      label: Text(
+                        "${lesson.xpReward} XP",
+                        style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: Colors.amber.withValues(alpha: 0.15),
                     ),
                     Chip(
                       backgroundColor:
@@ -142,6 +151,13 @@ class LessonDetailScreen extends StatelessWidget {
                           await lessonProvider.completeLesson(lesson.id);
 
                           userProvider.addXP(lesson.xpReward);
+
+                          if (context.mounted) {
+                            context.read<NotificationProvider>().addNotification(
+                                  title: 'Lesson completed!',
+                                  body: '${lesson.title} - +${lesson.xpReward} XP earned',
+                                );
+                          }
 
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
