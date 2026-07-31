@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/models/course.dart';
 import 'package:foundationx_frontend/core/services/courses_service.dart';
+import 'package:foundationx_frontend/core/theme/app_colors.dart';
 import 'package:foundationx_frontend/core/theme/course_visuals.dart';
 import 'package:foundationx_frontend/features/auth/widgets/course_chip.dart';
 import '../providers/auth_provider.dart';
@@ -99,7 +100,11 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
   @override
   Widget build(BuildContext context) {
     const primary = Color(0xFF315CFD);
-    const background = Color(0xFFF5F7FC);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final background = isDark ? AppColors.backgroundDark : const Color(0xFFF5F7FC);
+    final cardColor = isDark ? AppColors.cardDark : Colors.white;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : Colors.grey.shade600;
     final auth = context.watch<AuthProvider>();
     final isLoading = auth.status == AuthStatus.loading;
     final courses = _courses;
@@ -113,10 +118,11 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
             children: [
               const SizedBox(height: 20),
 
-              const Text(
+              Text(
                 "What do you want to learn?",
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  color: textPrimary,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
@@ -128,7 +134,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                 "Personalize your studies, by picking as many subject as you would like . You can change this later.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: textSecondary,
                   fontSize: 15,
                 ),
               ),
@@ -142,12 +148,16 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: isDark
+                        ? Colors.red.shade900.withValues(alpha: .3)
+                        : Colors.red.shade50,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     auth.errorMessage!,
-                    style: TextStyle(color: Colors.red.shade700),
+                    style: TextStyle(
+                      color: isDark ? Colors.red.shade200 : Colors.red.shade700,
+                    ),
                   ),
                 ),
               ],
@@ -158,7 +168,9 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                     Text(
                       _coursesError!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.red.shade700),
+                      style: TextStyle(
+                        color: isDark ? Colors.red.shade200 : Colors.red.shade700,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton(
@@ -189,7 +201,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade800,
+                              color: textPrimary,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -223,11 +235,12 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
 
               const SizedBox(height: 32),
 
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "What are your goals?",
                   style: TextStyle(
+                    color: textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -241,7 +254,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                 child: Text(
                   "Select all goals that apply to you so we can personalize your dashboard and recommendations.",
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: textSecondary,
                     fontSize: 14,
                   ),
                 ),
@@ -252,7 +265,7 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -266,7 +279,10 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                         controlAffinity: ListTileControlAffinity.leading,
                         title: Text(
                           goal,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            color: textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         onChanged: (value) {
                           setState(() {
@@ -284,9 +300,12 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                       value: _othersSelected,
                       activeColor: primary,
                       controlAffinity: ListTileControlAffinity.leading,
-                      title: const Text(
+                      title: Text(
                         'Others',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       onChanged: (value) {
                         setState(() => _othersSelected = value ?? false);
@@ -301,10 +320,11 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                 TextField(
                   controller: _othersController,
                   maxLines: 2,
+                  style: TextStyle(color: textPrimary),
                   decoration: InputDecoration(
                     hintText: "Tell us what else you're hoping to achieve",
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: cardColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -321,7 +341,10 @@ class _SelectSubjectsScreenState extends State<SelectSubjectsScreen> {
                       height: 55,
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey.shade300),
+                          foregroundColor: textPrimary,
+                          side: BorderSide(
+                            color: isDark ? AppColors.borderDark : Colors.grey.shade300,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),

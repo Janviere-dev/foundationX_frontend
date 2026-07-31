@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:foundationx_frontend/core/theme/app_colors.dart';
+
 import '../providers/auth_provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -33,7 +35,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     const primary = Color(0xFF315CFD);
-    const background = Color(0xFFF5F7FC);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final background = isDark ? AppColors.backgroundDark : const Color(0xFFF5F7FC);
+    final cardColor = isDark ? AppColors.cardDark : Colors.white;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : Colors.grey.shade600;
     final auth = context.watch<AuthProvider>();
     final isLoading = auth.status == AuthStatus.loading;
 
@@ -64,7 +70,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               Text(
                 _sent ? "Check your inbox" : "Reset your password",
-                style: const TextStyle(
+                style: TextStyle(
+                  color: textPrimary,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
@@ -78,7 +85,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     : "Enter the email you signed up with and we'll send you a link to reset your password.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: textSecondary,
                   fontSize: 15,
                 ),
               ),
@@ -89,11 +96,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: .05),
+                      color: Colors.black.withValues(alpha: isDark ? .2 : .05),
                       blurRadius: 15,
                       offset: const Offset(0, 6),
                     )
@@ -119,12 +126,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 padding: const EdgeInsets.all(12),
                                 margin: const EdgeInsets.only(bottom: 16),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
+                                  color: isDark
+                                      ? Colors.red.shade900.withValues(alpha: .3)
+                                      : Colors.red.shade50,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
                                   auth.errorMessage!,
-                                  style: TextStyle(color: Colors.red.shade700),
+                                  style: TextStyle(
+                                    color: isDark ? Colors.red.shade200 : Colors.red.shade700,
+                                  ),
                                 ),
                               ),
                             ],

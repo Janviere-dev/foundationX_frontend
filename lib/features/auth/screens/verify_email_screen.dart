@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
@@ -50,7 +51,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     const primary = Color(0xFF315CFD);
-    const background = Color(0xFFF5F7FC);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final background = isDark ? AppColors.backgroundDark : const Color(0xFFF5F7FC);
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : Colors.grey.shade600;
     final auth = context.watch<AuthProvider>();
     final email = context.watch<UserProvider>().user.email;
     final isLoading = auth.status == AuthStatus.loading || _checking;
@@ -79,9 +83,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
               const SizedBox(height: 24),
 
-              const Text(
+              Text(
                 "Verify your email",
                 style: TextStyle(
+                  color: textPrimary,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
@@ -93,7 +98,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 "We sent a verification link to $email. Click it, then come back and tap Continue.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: textSecondary,
                   fontSize: 15,
                 ),
               ),
@@ -107,12 +112,16 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: isDark
+                        ? Colors.red.shade900.withValues(alpha: .3)
+                        : Colors.red.shade50,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     auth.errorMessage!,
-                    style: TextStyle(color: Colors.red.shade700),
+                    style: TextStyle(
+                      color: isDark ? Colors.red.shade200 : Colors.red.shade700,
+                    ),
                   ),
                 ),
               ],
@@ -159,7 +168,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 onPressed: () => auth.signOut(),
                 child: Text(
                   "Sign out",
-                  style: TextStyle(color: Colors.grey.shade600),
+                  style: TextStyle(color: textSecondary),
                 ),
               ),
             ],
