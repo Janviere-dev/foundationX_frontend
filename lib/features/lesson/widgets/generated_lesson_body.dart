@@ -163,6 +163,35 @@ class _GeneratedLessonBodyState extends State<GeneratedLessonBody> {
                 ),
               ),
         ],
+
+        if (content.sources.isNotEmpty) ...[
+          const SizedBox(height: 28),
+          const Text(
+            'Further Reading',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...content.sources.map(
+            (source) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.menu_book_outlined, size: 20, color: Colors.grey),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      source.pages.isEmpty
+                          ? source.bookName
+                          : '${source.bookName} — page${source.pages.length > 1 ? 's' : ''} ${source.pages.join(', ')}',
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
