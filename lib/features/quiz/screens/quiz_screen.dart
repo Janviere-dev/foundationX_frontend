@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
-import 'package:foundationx_frontend/core/theme/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/providers/app_providers.dart';
 
 class QuizScreen extends StatefulWidget {
   final QuizModel quiz;
@@ -117,34 +117,39 @@ class _QuizScreenState extends State<QuizScreen> {
             const Spacer(),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (currentQuestion > 0)
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        currentQuestion--;
-                      });
-                    },
-                    child: const Text("Previous"),
+                if (currentQuestion > 0) ...[
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          currentQuestion--;
+                        });
+                      },
+                      child: const Text("Previous"),
+                    ),
                   ),
+                  const SizedBox(width: 12),
+                ],
 
-                ElevatedButton(
-                  onPressed: () {
-                    if (currentQuestion <
-                        widget.quiz.questions.length - 1) {
-                      setState(() {
-                        currentQuestion++;
-                      });
-                    } else {
-                      submitQuiz();
-                    }
-                  },
-                  child: Text(
-                    currentQuestion ==
-                            widget.quiz.questions.length - 1
-                        ? "Finish"
-                        : "Next",
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (currentQuestion <
+                          widget.quiz.questions.length - 1) {
+                        setState(() {
+                          currentQuestion++;
+                        });
+                      } else {
+                        submitQuiz();
+                      }
+                    },
+                    child: Text(
+                      currentQuestion ==
+                              widget.quiz.questions.length - 1
+                          ? "Finish"
+                          : "Next",
+                    ),
                   ),
                 ),
               ],

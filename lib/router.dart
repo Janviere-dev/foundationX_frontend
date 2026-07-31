@@ -25,6 +25,7 @@ import 'package:foundationx_frontend/features/assessment/screens/quiz_taking_scr
 import 'package:foundationx_frontend/features/assessment/screens/quiz_grading_screen.dart';
 import 'package:foundationx_frontend/features/assessment/screens/quiz_report_screen.dart';
 import 'package:foundationx_frontend/features/assessment/screens/quiz_history_screen.dart';
+import 'package:foundationx_frontend/features/chat/screens/chat_conversation_screen.dart';
 import 'package:foundationx_frontend/features/profile/screens/edit_profile_screen.dart';
 import 'package:foundationx_frontend/features/settings/screens/settings_screen.dart';
 import 'package:foundationx_frontend/features/notifications/screens/notifications_screen.dart';
@@ -46,15 +47,16 @@ const _autoForwardToHomePaths = {
   '/verify-email',
 };
 
-<<<<<<< HEAD
-const _unauthenticatedAllowedPaths = {'/forgot-password'};
-=======
 /// Screens reachable while signed out, in addition to /login and /register.
 /// /splash and /onboarding are the pre-login intro screens shown before a
 /// user has an account - they must stay reachable while logged out, or the
 /// redirect below would bounce straight to /login before they ever render.
 const _unauthenticatedAllowedPaths = {'/forgot-password', '/splash', '/onboarding'};
->>>>>>> 2ea83768925aebe760537728bcd6e7a738840b37
+
+/// Builds the app's router. [authProvider] doubles as GoRouter's
+/// [GoRouter.refreshListenable], so [AuthProvider.notifyListeners] — fired
+
+/// [AuthProvider.needsProfileCompletion], not just "is Firebase's user
 
 GoRouter buildRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -76,6 +78,10 @@ GoRouter buildRouter(AuthProvider authProvider) {
 
         decision = null;
       } else if (authProvider.needsEmailVerification) {
+        // Verify identity before anything else - onboarding and Home are
+        // both gated behind this for password accounts. Google accounts
+        // come back with emailVerified already true, so this is a no-op
+        // for them.
         decision = onVerifyEmailScreen ? null : '/verify-email';
       } else if (authProvider.needsProfileCompletion) {
         decision = onOnboardingScreen ? null : '/complete-profile';
@@ -250,6 +256,17 @@ GoRouter buildRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/quiz-history',
         builder: (context, state) => const QuizHistoryScreen(),
+      ),
+
+      GoRoute(
+        path: '/chat-conversation',
+        builder: (context, state) {
+          final args = state.extra as Map;
+
+          return ChatConversationScreen(
+            sessionId: args['sessionId'] as String?,
+          );
+        },
       ),
 
       GoRoute(

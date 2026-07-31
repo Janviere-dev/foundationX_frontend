@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
-import 'package:foundationx_frontend/core/theme/providers/theme_provider.dart';
+import 'package:foundationx_frontend/core/providers/theme_provider.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';

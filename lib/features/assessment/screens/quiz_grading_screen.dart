@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/services/quiz_service.dart';
 import 'package:foundationx_frontend/core/theme/course_visuals.dart';
+import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
 /// Polls GET /api/assessment/quizz/report/{id} after submission until
 /// grading finishes. A 404 means "still grading" - not an error - so
@@ -45,6 +47,10 @@ class _QuizGradingScreenState extends State<QuizGradingScreen> {
         final report = await _quizService.fetchReport(widget.quizzId);
         if (report != null) {
           if (!mounted) return;
+          context.read<NotificationProvider>().addNotification(
+                title: 'Quiz graded!',
+                body: '${report.subject}: ${report.score}/${report.totalQuestions}',
+              );
           context.pushReplacement('/quiz-report', extra: report);
           return;
         }

@@ -6,6 +6,8 @@ import 'package:foundationx_frontend/features/onboarding/widgets/onboarding_page
 import 'package:foundationx_frontend/features/onboarding/widgets/onboarding_slide_content.dart';
 import 'package:foundationx_frontend/features/onboarding/widgets/onboarding_slide_data.dart';
 
+/// Key used to persist that the user has seen onboarding, so it doesn't
+/// show again on future launches. SplashScreen reads this on boot.
 const String onboardingSeenKey = 'onboarding_seen';
 
 class OnboardingScreen extends StatefulWidget {

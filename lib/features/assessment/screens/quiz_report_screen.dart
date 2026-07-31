@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:printing/printing.dart';
 
 import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/theme/course_visuals.dart';
+import 'package:foundationx_frontend/features/assessment/services/quiz_report_pdf.dart';
 
 /// Shows a graded QuizzAssessmentReport - used both right after
 /// grading finishes and when opening a past report from quiz history.
@@ -10,6 +12,20 @@ class QuizReportScreen extends StatelessWidget {
   final QuizzAssessmentReport report;
 
   const QuizReportScreen({super.key, required this.report});
+
+  Future<void> _downloadReport(BuildContext context) async {
+    try {
+      await Printing.layoutPdf(
+        onLayout: (_) => QuizReportPdf.build(report),
+        name: '${report.subject}_quiz_report'.replaceAll(' ', '_'),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not generate the report file.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +40,13 @@ class QuizReportScreen extends StatelessWidget {
         backgroundColor: color,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.download_rounded),
+            tooltip: 'Download Report',
+            onPressed: () => _downloadReport(context),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -45,8 +68,12 @@ class QuizReportScreen extends StatelessWidget {
                 if (report.currentUnderstandingLevel.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Chip(
-                    label: Text(report.currentUnderstandingLevel),
+                    label: Text(
+                      report.currentUnderstandingLevel,
+                      style: TextStyle(color: color, fontWeight: FontWeight.w700),
+                    ),
                     backgroundColor: color.withValues(alpha: 0.18),
+                    side: BorderSide(color: color.withValues(alpha: 0.4)),
                   ),
                 ],
               ],

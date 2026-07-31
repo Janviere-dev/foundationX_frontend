@@ -3,14 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
-<<<<<<< HEAD
-import 'package:foundationx_frontend/core/theme/providers/app_providers.dart';
-import 'package:foundationx_frontend/core/theme/providers/achievement_provider.dart';
-=======
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/providers/achievement_provider.dart';
 import 'package:foundationx_frontend/core/providers/theme_provider.dart';
->>>>>>> 2ea83768925aebe760537728bcd6e7a738840b37
 import 'package:foundationx_frontend/core/theme/app_colors.dart';
 import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/features/auth/providers/auth_provider.dart';

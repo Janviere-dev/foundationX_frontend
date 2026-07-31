@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:foundationx_frontend/core/theme/providers/achievement_provider.dart';
+import 'package:foundationx_frontend/core/providers/achievement_provider.dart';
 import 'package:foundationx_frontend/features/notifications/models/notification.dart';
 
 class NotificationProvider extends ChangeNotifier {

@@ -67,14 +67,6 @@ class AuthService {
     final parts = (user.displayName ?? '').trim().split(RegExp(r'\s+'));
     final hasDisplayName = parts.isNotEmpty && parts.first.isNotEmpty;
 
-<<<<<<< HEAD
-    final firstName =
-        hasDisplayName ? parts.first : _fallbackFirstName(user.email);
-    final lastName =
-        hasDisplayName && parts.length > 1 ? parts.sublist(1).join(' ') : '';
-    final isGoogle =
-        user.providerData.any((p) => p.providerId == 'google.com');
-=======
     final firstName = hasDisplayName
         ? parts.first
         : _fallbackFirstName(user.email);
@@ -82,7 +74,6 @@ class AuthService {
         ? parts.sublist(1).join(' ')
         : '';
     final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
->>>>>>> 2ea83768925aebe760537728bcd6e7a738840b37
 
     return AppUser(
       uid: user.uid,

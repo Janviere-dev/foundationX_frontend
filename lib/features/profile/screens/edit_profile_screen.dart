@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/constants/grade_options.dart';
-import 'package:foundationx_frontend/core/theme/providers/app_providers.dart';
+import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/theme/app_colors.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
@@ -159,6 +159,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   DropdownButtonFormField<String>(
                     initialValue: _grade,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Grade',
                       prefixIcon: Icon(Icons.class_outlined),

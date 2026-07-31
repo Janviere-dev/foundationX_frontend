@@ -22,7 +22,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _decideNextRoute() async {
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool(onboardingSeenKey) ?? false;
-
     await Future.delayed(const Duration(milliseconds: 600));
 
     final nextRoute = hasSeenOnboarding ? '/login' : '/onboarding';

@@ -3,12 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
-<<<<<<< HEAD
-import 'package:foundationx_frontend/data/app_data.dart';
-import 'package:foundationx_frontend/core/theme/providers/app_providers.dart';
-=======
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
->>>>>>> 2ea83768925aebe760537728bcd6e7a738840b37
 
 import 'package:foundationx_frontend/features/home/widgets/all_subjects_grid.dart';
 import 'package:foundationx_frontend/features/home/widgets/continue_learning_section.dart';
@@ -44,7 +39,7 @@ class HomeScreen extends StatelessWidget {
               firstName: user.firstName.isEmpty ? user.name : user.firstName,
               streak: user.streak,
               notifications: unreadNotifications,
-              onAvatarTap: () => onNavigateToTab?.call(3),
+              onAvatarTap: () => onNavigateToTab?.call(4),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
@@ -55,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                 xp: user.xpPoints,
                 xpForNextLevel: userProvider.xpForNextLevel,
                 progress: userProvider.levelProgress,
-                onTap: () => onNavigateToTab?.call(2),
+                onTap: () => onNavigateToTab?.call(3),
               ),
             ),
 

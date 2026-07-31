@@ -1,17 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/models/models.dart';
-import 'package:foundationx_frontend/core/theme/providers/lesson_provider.dart';
+import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
+import 'package:foundationx_frontend/core/services/quiz_service.dart';
 import 'package:foundationx_frontend/core/widgets/fx_card.dart';
 import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
 import 'package:foundationx_frontend/core/widgets/fx_section_title.dart';
 import 'package:foundationx_frontend/core/widgets/fx_subject_card.dart';
 import 'package:foundationx_frontend/data/app_data.dart';
 
-class ProgressScreen extends StatelessWidget {
+class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
+
+  @override
+  State<ProgressScreen> createState() => _ProgressScreenState();
+}
+
+class _ProgressScreenState extends State<ProgressScreen> {
+  final _quizService = QuizService();
+  QuizProgressSummary? _quizSummary;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuizSummary();
+  }
+
+  Future<void> _loadQuizSummary() async {
+    try {
+      final summary = await _quizService.fetchProgress();
+      if (!mounted) return;
+      setState(() => _quizSummary = summary);
+    } catch (_) {
+      // Quiz stats are a supplementary section here - if they fail to
+      // load, the rest of the (lesson-based) progress screen still
+      // works fine, so this fails silently rather than blocking.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +111,44 @@ class ProgressScreen extends StatelessWidget {
               ],
             ),
           ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          const FXSectionTitle(title: 'Quizzes'),
+
+          if (_quizSummary == null)
+            const FXCard(
+              child: Center(child: Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator())),
+            )
+          else
+            FXCard(
+              onTap: () => context.push('/quiz-history'),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${_quizSummary!.reportsGenerated} graded',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _quizSummary!.started > _quizSummary!.completed
+                              ? 'You have an unfinished quiz'
+                              : '${_quizSummary!.started} started overall',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                ],
+              ),
+            ),
 
           const SizedBox(height: AppSpacing.lg),
 
