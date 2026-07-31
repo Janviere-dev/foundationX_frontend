@@ -27,14 +27,30 @@ class SubjectDetailScreen extends StatelessWidget {
     final List<TopicModel> topics =
         AppData.getTopicsForSubject(subjectId);
 
-    final List<QuizModel> quizzes =
-        AppData.getQuizzesForSubject(subjectId);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(subject.name),
         backgroundColor: subject.color,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.quiz_outlined),
+            tooltip: 'Take a Quiz',
+            onPressed: () => context.push(
+              '/quiz-setup',
+              extra: {
+                'subject': subject.name,
+                'topics': {
+                  for (final topic in topics)
+                    topic.title: lessons
+                        .where((l) => l.topicTag.toLowerCase() == topic.title.toLowerCase())
+                        .map((l) => l.title)
+                        .toList(),
+                },
+              },
+            ),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -120,12 +136,6 @@ class SubjectDetailScreen extends StatelessWidget {
                       lessonProvider.isCompleted(lesson.id),
                 )
                 .length;
-
-            QuizModel? topicQuiz;
-
-            if (quizzes.length >= topic.order) {
-              topicQuiz = quizzes[topic.order - 1];
-            }
 
             return Card(
               elevation: 2,
@@ -243,71 +253,32 @@ class SubjectDetailScreen extends StatelessWidget {
                     );
                   }),
 
-                  if (topicQuiz != null) ...[
+                  if (topicLessons.isNotEmpty) ...[
                     const Divider(
                       height: 28,
                       indent: 18,
                       endIndent: 18,
                     ),
 
-                    Builder(
-  builder: (context) {
-    final lessonIds = topicLessons.map((e) => e.id).toList();
-    final topicCompleted =
-        lessonProvider.isTopicCompleted(lessonIds);
-
-    return Column(
-      children: [
-        if (topicCompleted)
-          const Padding(
-            padding: EdgeInsets.only(bottom: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.workspace_premium,
-                  color: Colors.amber,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  "Topic Completed",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            18,
-            0,
-            18,
-            18,
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              icon: const Icon(Icons.quiz),
-              label: Text(
-                "Take ${topic.title} Quiz",
-              ),
-              onPressed: topicCompleted
-                  ? () {
-                      context.push(
-                        "/quiz",
-                        extra: topicQuiz,
-                      );
-                    }
-                  : null,
-            ),
-          ),
-        ),
-      ],
-    );
-  },
-),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.quiz),
+                          label: Text("Take ${topic.title} Quiz"),
+                          onPressed: () => context.push(
+                            "/quiz-setup",
+                            extra: {
+                              'subject': subject.name,
+                              'topics': {
+                                topic.title: topicLessons.map((l) => l.title).toList(),
+                              },
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),

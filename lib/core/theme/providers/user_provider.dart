@@ -20,7 +20,9 @@ class UserProvider extends ChangeNotifier {
           xpPoints: 2450,
           streak: 7,
           level: 1,
-          subjects: const ['math', 'english', 'biology', 'physics'],
+          // Subject names, not local ids - matches what the backend now
+          // stores after onboarding (see ContinueLearningSection).
+          subjects: const ['Mathematics', 'English', 'Biology', 'Physics'],
         ) {
     _recalculateLevel();
   }
@@ -59,6 +61,16 @@ class UserProvider extends ChangeNotifier {
       now.toIso8601String(),
     );
 
+    notifyListeners();
+  }
+
+  /// Reflects a subject the backend just confirmed was added (see
+  /// AuthProvider.joinSubject) - local-only update, the actual write
+  /// already happened server-side via PATCH /api/users/subjects.
+  void addSubject(String subject) {
+    if (_user.subjects.contains(subject)) return;
+
+    _user = _user.copyWith(subjects: [..._user.subjects, subject]);
     notifyListeners();
   }
 

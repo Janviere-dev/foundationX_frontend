@@ -1,36 +1,88 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:foundationx_frontend/core/config/api_config.dart';
 import 'package:foundationx_frontend/features/auth/models/app_user.dart';
 
 class AuthService {
-  AuthService({FirebaseAuth? auth, FirebaseFirestore? firestore})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthService({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> get _usersRef =>
-      _firestore.collection('users');
+  static const _timeout = Duration(seconds: 20);
+
+  Uri _url(String path) {
+    final uri = Uri.parse('${ApiConfig.baseUrl}$path');
+    debugPrint('AuthService: $uri');
+    return uri;
+  }
+
+  Future<String> _idToken({bool forceRefresh = false}) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw StateError(
+        'No signed-in Firebase user to authenticate the request with.',
+      );
+    }
+
+    final token = await user.getIdToken(forceRefresh).timeout(_timeout);
+    if (token == null) {
+      throw StateError('Failed to obtain a Firebase ID token.');
+    }
+
+    return token;
+  }
+
+  Future<Map<String, String>> _headers({
+    bool forceRefreshToken = false,
+  }) async => {
+    'Authorization':
+        'Bearer ${await _idToken(forceRefresh: forceRefreshToken)}',
+    'Content-Type': 'application/json',
+  };
 
   Future<AppUser?> fetchProfile(String uid) async {
-    final doc = await _usersRef.doc(uid).get();
-    if (!doc.exists) return null;
-    return AppUser.fromMap(uid, doc.data()!);
+    final response = await http
+        .get(
+          _url('/api/users/me'),
+          headers: await _headers(),
+        )
+        .timeout(_timeout);
+
+    if (response.statusCode == 404) return null;
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch profile (${response.statusCode})');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return AppUser.fromApi(data, photoUrl: _auth.currentUser?.photoURL);
   }
 
   AppUser partialProfileFor(User user) {
     final parts = (user.displayName ?? '').trim().split(RegExp(r'\s+'));
     final hasDisplayName = parts.isNotEmpty && parts.first.isNotEmpty;
 
+<<<<<<< HEAD
     final firstName =
         hasDisplayName ? parts.first : _fallbackFirstName(user.email);
     final lastName =
         hasDisplayName && parts.length > 1 ? parts.sublist(1).join(' ') : '';
     final isGoogle =
         user.providerData.any((p) => p.providerId == 'google.com');
+=======
+    final firstName = hasDisplayName
+        ? parts.first
+        : _fallbackFirstName(user.email);
+    final lastName = hasDisplayName && parts.length > 1
+        ? parts.sublist(1).join(' ')
+        : '';
+    final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
+>>>>>>> 2ea83768925aebe760537728bcd6e7a738840b37
 
     return AppUser(
       uid: user.uid,
@@ -49,6 +101,21 @@ class AuthService {
     return localPart[0].toUpperCase() + localPart.substring(1);
   }
 
+  Future<void> createUser() async {
+    final response = await http
+        .post(
+          _url('/api/users/create_user'),
+          headers: await _headers(),
+        )
+        .timeout(_timeout);
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      debugPrint(
+        'AuthService.createUser: unexpected status ${response.statusCode}',
+      );
+    }
+  }
+
   Future<AppUser> registerWithEmail({
     required String firstName,
     required String lastName,
@@ -62,6 +129,7 @@ class AuthService {
     final user = credential.user!;
     await user.updateDisplayName('$firstName $lastName'.trim());
     await user.sendEmailVerification();
+    await createUser();
 
     return AppUser(
       uid: user.uid,
@@ -82,6 +150,7 @@ class AuthService {
       password: password,
     );
     final user = credential.user!;
+    await createUser();
     return await fetchProfile(user.uid) ?? partialProfileFor(user);
   }
 
@@ -92,17 +161,48 @@ class AuthService {
     final credential = GoogleAuthProvider.credential(idToken: idToken);
     final userCredential = await _auth.signInWithCredential(credential);
     final user = userCredential.user!;
+    await createUser();
 
     return await fetchProfile(user.uid) ?? partialProfileFor(user);
   }
 
   Future<AppUser> saveProfile(AppUser profile) async {
-    await _usersRef.doc(profile.uid).set({
-      ...profile.toMap(),
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    await _auth.currentUser?.reload();
+
+    final body = {
+      ...profile.toApiMap(),
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    };
+
+    final response = await http
+        .put(
+          _url('/api/users/extend_info'),
+          headers: await _headers(forceRefreshToken: true),
+          body: jsonEncode(body),
+        )
+        .timeout(_timeout);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save profile (${response.statusCode})');
+    }
 
     return profile;
+  }
+
+  /// Enrolls the signed-in user in [subject] (its catalog name, e.g.
+  /// "Chemistry") via PATCH /api/users/subjects.
+  Future<void> addSubject(String subject) async {
+    final response = await http
+        .patch(
+          _url('/api/users/subjects'),
+          headers: await _headers(),
+          body: jsonEncode({'subject': subject}),
+        )
+        .timeout(_timeout);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add subject (${response.statusCode})');
+    }
   }
 
   Future<void> sendPasswordResetEmail(String email) {

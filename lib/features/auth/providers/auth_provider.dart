@@ -32,8 +32,8 @@ class AuthProvider extends ChangeNotifier {
   /// Explicit sign-in flows below set status to loading before they touch
   /// Firebase, so this bails out and lets them finish instead of racing —
   /// that race (this listener resolving before the explicit flow's own
-  /// Firestore read) is what caused a fresh Google sign-up to jump straight
-  /// to /home instead of the complete-profile wizard.
+  /// backend profile read) is what caused a fresh Google sign-up to jump
+  /// straight to /home instead of the complete-profile wizard.
   Future<void> _onAuthStateChanged(User? user) async {
     debugPrint(
       'AuthProvider._onAuthStateChanged: uid=${user?.uid} status=$status',
@@ -52,6 +52,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      await _authService.createUser();
       final profile =
           await _authService.fetchProfile(user.uid) ??
               _authService.partialProfileFor(user);
@@ -130,7 +131,7 @@ class AuthProvider extends ChangeNotifier {
 
   /// Called from the last step of the complete-profile wizard (subject +
   /// goals selection), once every onboarding field has been collected.
-  /// Writes the full profile to Firestore in one go.
+  /// Writes the full profile to the backend in one go.
   Future<bool> completeProfile({
     required String school,
     required String grade,
@@ -214,6 +215,27 @@ class AuthProvider extends ChangeNotifier {
     } catch (_) {
       _setError('Could not update your profile. Please try again.');
       return false;
+    }
+  }
+
+  /// Enrolls the student in a subject they hadn't picked during onboarding
+  /// (see CourseOverviewScreen's "Join Now"). Returns null on success, or
+  /// an error message to show.
+  ///
+  /// Deliberately does NOT touch `status`/notifyListeners() on this
+  /// provider - it's also GoRouter's refreshListenable, and notifying
+  /// while sitting on a route pushed with `extra` (like /course, which
+  /// carries a Course object that isn't encoded in the URL) makes
+  /// go_router rebuild that route without its extra, crashing with a
+  /// null-cast. UserProvider.addSubject's own notifyListeners is a
+  /// separate ChangeNotifier unrelated to routing, so that one is safe.
+  Future<String?> joinSubject(String subject) async {
+    try {
+      await _authService.addSubject(subject);
+      _userProvider.addSubject(subject);
+      return null;
+    } catch (_) {
+      return 'Could not join this subject. Please try again.';
     }
   }
 

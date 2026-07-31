@@ -41,44 +41,57 @@ class AppUser {
       dateOfBirth != null &&
       goals.isNotEmpty;
 
-  factory AppUser.fromMap(String uid, Map<String, dynamic> map) {
+  /// Builds an [AppUser] from the FastAPI backend's `GET /api/users/me`
+  /// response (snake_case; onboarding fields absent until the
+  /// complete-profile wizard has run, which is what keeps [isComplete]
+  /// false for them). The backend doesn't store [photoUrl] - that comes
+  /// from Firebase directly, since Firebase Auth already owns it.
+  factory AppUser.fromApi(Map<String, dynamic> json, {String? photoUrl}) {
+    final signInProvider = json['sign_in_provider'] as String?;
+
     return AppUser(
-      uid: uid,
-      firstName: map['firstName'] as String? ?? '',
-      lastName: map['lastName'] as String? ?? '',
-      email: map['email'] as String? ?? '',
-      school: map['school'] as String? ?? '',
-      grade: map['grade'] as String? ?? '',
-      subjects: (map['subjects'] as List<dynamic>?)
+      uid: json['user_id'] as String? ?? '',
+      firstName: json['first_name'] as String? ?? '',
+      lastName: json['last_name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      school: json['school'] as String? ?? '',
+      grade: json['grade'] as String? ?? '',
+      subjects: (json['subjects'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      dateOfBirth: map['dateOfBirth'] != null
-          ? DateTime.tryParse(map['dateOfBirth'] as String)
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.tryParse(json['date_of_birth'] as String)
           : null,
-      gender: map['gender'] as String? ?? 'Rather not say',
-      goals: (map['goals'] as List<dynamic>?)
+      gender: json['gender'] as String? ?? 'Rather not say',
+      goals: (json['goals'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      photoUrl: map['photoUrl'] as String?,
-      provider: map['provider'] as String? ?? 'password',
+      photoUrl: photoUrl,
+      provider: signInProvider == 'google.com' ? 'google' : 'password',
     );
   }
 
-  Map<String, dynamic> toMap() {
+  /// Body for `PUT /api/users/extend_info`. Requires [dateOfBirth] to
+  /// already be set - both call sites (completeProfile/updateProfile) only
+  /// reach this once onboarding has collected a real date of birth.
+  Map<String, dynamic> toApiMap() {
+    assert(
+      dateOfBirth != null,
+      'dateOfBirth must be set before saving a profile to the backend',
+    );
+
     return {
-      'firstName': firstName,
-      'lastName': lastName,
-      'email': email,
+      'first_name': firstName,
+      'last_name': lastName,
       'school': school,
       'grade': grade,
       'subjects': subjects,
-      'dateOfBirth': dateOfBirth?.toIso8601String(),
-      'gender': gender,
       'goals': goals,
-      'photoUrl': photoUrl,
-      'provider': provider,
+      'gender': gender,
+      'date_of_birth': dateOfBirth!.toIso8601String().split('T').first,
+      'onboarding_complete': true,
     };
   }
 
