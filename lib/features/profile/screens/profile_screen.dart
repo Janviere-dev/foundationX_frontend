@@ -100,6 +100,26 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: AppSpacing.xl),
 
+                Text(
+                  'Learning',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 14),
+
+                ProfileInfoCard(
+                  items: [
+                    ProfileInfoItem(
+                      icon: Icons.history_edu_outlined,
+                      label: 'Quiz History',
+                      value: 'View past quizzes & scores',
+                      onTap: () => context.push('/quiz-history'),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: AppSpacing.xl),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
