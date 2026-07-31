@@ -125,6 +125,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             initialValue: _selectedTopic,
+            isExpanded: true,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
