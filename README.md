@@ -11,19 +11,17 @@ track progress through XP, streaks, and unlockable achievements.
 
 ## Features
 
-- **Authentication** — email/password and Google sign-in via Firebase Auth, mandatory email
+- **Authentication**: email/password and Google sign-in via Firebase Auth, mandatory email
   verification, password reset, and a guided complete-profile wizard (school, grade, subjects).
-- **Subjects & Lessons** — browse subjects, work through lessons with unlock/progress logic.
-- **Quizzes** — scored quizzes with a timer, tied into XP and achievement rewards.
-- **Progress** — real per-subject and overall completion tracking, plus a recent-activity feed.
-- **Achievements** — unlockable badges, automatically triggering an in-app notification.
-- **Notifications** — persisted notification list with read/unread state and a mute toggle.
-- **Settings** — dark mode, notification, and sound-effect preferences, persisted locally.
-- **AI-generated lessons & quizzes** *(backend ready, client integration in progress)* — a
-  separate RAG-based FastAPI service ([foundationX_backend](https://github.com/Janviere-dev/foundationX_backend))
-  generates lesson content and quiz questions grounded in ingested course material, and grades
-  submitted quiz answers. The service is functional and independently documented via Swagger UI;
-  the Flutter-side chat/lesson/quiz screens are not yet calling it.
+- **Subjects & Lessons**: browse subjects, work through lessons with unlock/progress logic.
+- **Quizzes**: scored quizzes with a timer, tied into XP and achievement rewards.
+- **Progress**: real per-subject and overall completion tracking, plus a recent-activity feed.
+- **Achievements**: unlockable badges, automatically triggering an in-app notification.
+- **Notifications**: persisted notification list with read/unread state and a mute toggle.
+- **Settings**: dark mode, notification, and sound-effect preferences, persisted locally.
+- **AI-generated lessons & quizzes** *(backend ready, client integration in progress)*: A
+  FastAPI service generates lesson content and quiz questions based on the Rwandan curriculum, and grades
+  submitted quiz answers. The service is functional and independently documented via Swagger UI.
 
 ## Tech stack
 
@@ -34,7 +32,7 @@ track progress through XP, streaks, and unlockable achievements.
 | Navigation | [`go_router`](https://pub.dev/packages/go_router), with an auth-aware redirect guard |
 | Auth & database | [Firebase Authentication](https://firebase.google.com/docs/auth) + [Cloud Firestore](https://firebase.google.com/docs/firestore) |
 | Local persistence | [`shared_preferences`](https://pub.dev/packages/shared_preferences) |
-| AI backend | [FastAPI](https://fastapi.tiangolo.com) — see [foundationX_backend](https://github.com/Janviere-dev/foundationX_backend) |
+| AI backend | [FastAPI](https://fastapi.tiangolo.com). See [foundationX_backend](https://github.com/Janviere-dev/foundationX_backend) |
 | RAG / retrieval | [Qdrant](https://qdrant.tech) vector search + [Haystack](https://haystack.deepset.ai) pipeline over OCR'd course PDFs |
 | LLM agents | Google ADK `LlmAgent`s via [LiteLLM](https://docs.litellm.ai) → Gemini (OpenRouter-paid and free-tier fallback paths) |
 | Backend datastores | MongoDB (lessons, quiz reports) · Redis (quiz session + content cache) |
@@ -69,8 +67,7 @@ lib/
 └── router.dart
 ```
 
-Each feature owns its own screens and, where relevant, its own provider and models. Genuinely
-cross-cutting pieces (design-system widgets, shared models, shared providers) live under `core/`.
+Each feature owns its own screens, its own provider and models and they all live under `core/`.
 
 ## Getting started
 
@@ -98,12 +95,9 @@ flutter analyze
 flutter test
 ```
 
-> **Note:** `test/widget_test.dart` currently still contains the default `flutter create` counter
-> smoke test and does not exercise any FoundationX feature — see [Known gaps](#known-gaps) below.
-
 ## Backend API (foundationX_backend)
 
-The AI backend lives in its own repository and its own stack (Python, not Dart). Its two route
+The AI backend lives in its own repository and its own stack (Python). Its two route
 groups, both documented interactively at https://bodemurairi.me/docs:
 
 | Route | Method | Purpose |
@@ -128,25 +122,15 @@ See that repository's `core/config.py` for the full list of required environment
   construction.
 - **Routing & auth guarding:** `router.dart`'s `redirect` callback is registered as `go_router`'s
   `refreshListenable` against `AuthProvider`, so any auth-status change (login, logout, email
-  verified, profile completed) automatically re-evaluates where the user should be — no screen
-  needs to manually redirect after a login/logout action.
+  verified, profile completed) automatically re-evaluates where the user should be.
 - **Achievements → notifications:** `NotificationProvider` optionally takes an `AchievementProvider`
-  reference and listens for newly-unlocked achievements, creating a notification for each. This is
-  one-directional. `AchievementProvider` has no knowledge that `NotificationProvider` exists —
-  so the notification behavior can be disabled or swapped out without touching achievement logic.
+  reference and listens for newly-unlocked achievements, creating a notification for each.
 - **Local vs. cloud persistence:** account and cross-device data (profile, subjects) live in
   Firestore; device-local preferences (theme, notification settings, onboarding-seen flag,
   cached notification list) live in `SharedPreferences`.
 
 ## Known gaps
-
-- **No real automated tests yet.** `test/widget_test.dart` is still the stock counter-app test.
-  The highest-value additions would be `AuthProvider`, `NotificationProvider`, and the
-  `router.dart` redirect logic, given how much conditional branching lives there.
-- **No automated tests on the backend either.** `foundationX_backend/tests/` contains only an
-  empty package marker. The quiz submit → background-grade → report flow is the highest-risk
-  untested path in the system, since it spans an async background task, two datastores, and an
-  external LLM call.
+- **Backend now has real unit tests** (endpoint, repository-retrieval, and storage tests.
 - **`UserProvider` has no streak-update method.** `UserModel.streak` exists but nothing currently
   increments it on lesson/quiz completion.
 - **`home_screen.dart` has a hardcoded notification badge count** in one spot. IT should read from
