@@ -4,7 +4,7 @@ FoundationX is a mobile learning companion for secondary-school (K-12) students,
 [Flutter](https://flutter.dev). Students browse subjects, work through lessons, take quizzes, and
 track progress through XP, streaks, and unlockable achievements.
 
-- **Demo video:** [DEMO VIDEO LINK]
+- **Demo video:** https://youtu.be/YxZQu0emJAs 
 - **Backend repo:** https://github.com/Janviere-dev/foundationX_backend
 - **Backend API docs (Swagger UI):** https://bodemurairi.me/docs
 - **Firebase console:** https://console.firebase.google.com/u/1/project/foundationx-c3b2e/overview
