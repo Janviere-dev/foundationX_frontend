@@ -56,6 +56,16 @@ class _CourseOverviewScreenState extends State<CourseOverviewScreen> {
         title: Text(widget.course.subject),
         backgroundColor: color,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.quiz_outlined),
+            tooltip: 'Take a Quiz',
+            onPressed: () => context.push(
+              '/quiz-setup',
+              extra: {'subject': widget.course.subject, 'topics': widget.course.topics},
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -124,18 +134,38 @@ class _CourseOverviewScreenState extends State<CourseOverviewScreen> {
                       ),
                       title: Text(topicName, style: const TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: Text('${subtopics.length} lessons'),
-                      children: subtopics.map((subtopic) {
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                          leading: Icon(Icons.play_circle_outline, color: color),
-                          title: Text(subtopic),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                          onTap: () => context.push(
-                            '/catalog-lesson',
-                            extra: {'subject': widget.course.subject, 'lessonTitle': subtopic},
+                      children: [
+                        ...subtopics.map((subtopic) {
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                            leading: Icon(Icons.play_circle_outline, color: color),
+                            title: Text(subtopic),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                            onTap: () => context.push(
+                              '/catalog-lesson',
+                              extra: {'subject': widget.course.subject, 'lessonTitle': subtopic},
+                            ),
+                          );
+                        }),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              icon: Icon(Icons.quiz_outlined, color: color),
+                              label: Text('Take $topicName Quiz', style: TextStyle(color: color)),
+                              style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
+                              onPressed: () => context.push(
+                                '/quiz-setup',
+                                extra: {
+                                  'subject': widget.course.subject,
+                                  'topics': {topicName: subtopics},
+                                },
+                              ),
+                            ),
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ],
                     ),
                   );
                 }),
