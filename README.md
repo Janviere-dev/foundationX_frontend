@@ -129,6 +129,12 @@ See that repository's `core/config.py` for the full list of required environment
   Firestore; device-local preferences (theme, notification settings, onboarding-seen flag,
   cached notification list) live in `SharedPreferences`.
 
+## Tests 
+<img width="1600" height="826" alt="WhatsApp Image 2026-07-31 at 23 26 58" src="https://github.com/user-attachments/assets/ade6bb32-0fe5-4861-819b-50f78506c37d" />
+<img width="1600" height="826" alt="WhatsApp Image 2026-07-31 at 23 26 58 (1)" src="https://github.com/user-attachments/assets/cf4410bf-e565-4ba8-b629-9cd7012d7692" />
+
+
+
 ## Known gaps
 - **Backend now has real unit tests** (endpoint, repository-retrieval, and storage tests.
 - **`UserProvider` has no streak-update method.** `UserModel.streak` exists but nothing currently
