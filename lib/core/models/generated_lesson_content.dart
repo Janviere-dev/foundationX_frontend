@@ -26,6 +26,41 @@ class CheckpointQuestion {
   }
 }
 
+/// A single book+page reference the learning agent's RAG lookup pulled
+/// from while generating the lesson - shown as a "Further reading" list.
+class LessonSource {
+  final String bookName;
+  final List<int> pages;
+
+  const LessonSource({required this.bookName, required this.pages});
+}
+
+/// Parses the `retrival_details` array (RAG retrieval details, not part
+/// of the documented response schema) into a deduped, book-grouped list
+/// of sources. Multiple chunks from the same book are merged into one
+/// entry with all their page numbers.
+List<LessonSource> _parseSources(dynamic raw) {
+  if (raw is! List) return const [];
+
+  final pagesByBook = <String, Set<int>>{};
+  for (final entry in raw) {
+    if (entry is! Map<String, dynamic>) continue;
+    final bookName = entry['book_name'] as String?;
+    if (bookName == null || bookName.isEmpty) continue;
+
+    final pages = (entry['page_number'] as List<dynamic>?)
+            ?.map((e) => e is int ? e : int.tryParse(e.toString()))
+            .whereType<int>() ??
+        const <int>[];
+
+    pagesByBook.putIfAbsent(bookName, () => <int>{}).addAll(pages);
+  }
+
+  return pagesByBook.entries
+      .map((e) => LessonSource(bookName: e.key, pages: e.value.toList()..sort()))
+      .toList();
+}
+
 /// A lesson generated on demand by the backend's learning agent
 /// (POST /api/content/), keyed by subject + a plain-language lesson
 /// title rather than any local id.
@@ -41,6 +76,8 @@ class GeneratedLessonContent {
 
   final List<CheckpointQuestion> checkpoints;
 
+  final List<LessonSource> sources;
+
   const GeneratedLessonContent({
     required this.subject,
     required this.grade,
@@ -48,6 +85,7 @@ class GeneratedLessonContent {
     required this.learningContent,
     this.keyPoints,
     required this.checkpoints,
+    this.sources = const [],
   });
 
   factory GeneratedLessonContent.fromJson(Map<String, dynamic> json) {
@@ -66,6 +104,7 @@ class GeneratedLessonContent {
               ?.map((e) => CheckpointQuestion.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      sources: _parseSources(json['retrival_details']),
     );
   }
 }
