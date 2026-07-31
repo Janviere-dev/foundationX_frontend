@@ -30,7 +30,7 @@ class QuizSetupScreen extends StatefulWidget {
 class _QuizSetupScreenState extends State<QuizSetupScreen> {
   final _quizService = QuizService();
 
-  late String _selectedTopic = widget.topics.keys.first;
+  late String? _selectedTopic = widget.topics.keys.isEmpty ? null : widget.topics.keys.first;
   String? _selectedLesson;
   int _questionCount = 10;
   String? _level;
@@ -38,6 +38,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
   String? _error;
 
   Future<void> _generate() async {
+    final topic = _selectedTopic;
+    if (topic == null) return;
+
     setState(() {
       _generating = true;
       _error = null;
@@ -45,15 +48,31 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
 
     try {
       final outcome = await _quizService.generateQuiz(
-        learningQuery: _selectedLesson ?? _selectedTopic,
+        learningQuery: _selectedLesson ?? topic,
         subject: widget.subject,
-        numberQuestion: _questionCount,
+        numberQuestion: _questionCount.clamp(QuizService.minQuestions, QuizService.maxQuestions),
         quizzLevel: _level,
       );
 
       if (!mounted) return;
 
-      if (outcome.resumed) {
+      // A resumed (409) quiz already exists server-side whether or not
+      // it looks usable - refusing to open it would leave the student
+      // stuck forever, since the backend keeps returning this same
+      // pending quiz until it's submitted. Only freshly-generated quizzes
+      // get validated before showing them.
+      if (!outcome.resumed) {
+        final questions = outcome.quiz.questionDetails;
+        final hasUsableQuestions =
+            questions.isNotEmpty && questions.every((q) => q.options.length >= 2);
+
+        if (!hasUsableQuestions) {
+          setState(
+            () => _error = "Couldn't generate valid questions for this topic. Try a different topic or focus.",
+          );
+          return;
+        }
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Resuming your unfinished quiz...")),
         );
@@ -71,6 +90,23 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final color = colorForCourse(widget.subject);
+
+    if (widget.topics.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Take a Quiz'),
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+        ),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text('No topics available for this subject yet.', textAlign: TextAlign.center),
+          ),
+        ),
+      );
+    }
+
     final lessons = widget.topics[_selectedTopic] ?? const <String>[];
 
     return Scaffold(

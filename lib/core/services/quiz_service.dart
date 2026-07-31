@@ -37,17 +37,24 @@ class QuizService {
     return token;
   }
 
+  /// The backend rejects anything outside this range - clamped here so
+  /// no caller can accidentally send an invalid count.
+  static const minQuestions = 5;
+  static const maxQuestions = 30;
+
   Future<QuizGenerationOutcome> generateQuiz({
     required String learningQuery,
     required String subject,
     required int numberQuestion,
     String? quizzLevel,
   }) async {
+    final clampedCount = numberQuestion.clamp(minQuestions, maxQuestions);
+
     final token = await _token();
     final url = Uri.parse('${ApiConfig.baseUrl}/api/assessment/quizz');
     debugPrint(
       'QuizService.generateQuiz: POST $url (subject=$subject, query=$learningQuery, '
-      'n=$numberQuestion, level=$quizzLevel)',
+      'n=$clampedCount, level=$quizzLevel)',
     );
 
     final response = await http
@@ -60,7 +67,7 @@ class QuizService {
           body: jsonEncode({
             'learning_query': learningQuery,
             'subject': subject,
-            'number_question': numberQuestion,
+            'number_question': clampedCount,
             'quizz_level': quizzLevel,
           }),
         )

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/models/models.dart';
+import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/services/courses_service.dart';
 import 'package:foundationx_frontend/core/theme/course_visuals.dart';
 import 'package:foundationx_frontend/core/widgets/fx_scaffold.dart';
@@ -9,10 +11,12 @@ import 'package:foundationx_frontend/data/app_data.dart';
 
 /// Entry point from Home's quiz card - lets the student pick which
 /// subject to be quizzed on before landing in QuizSetupScreen (which
-/// then handles topic/lesson/question-count/difficulty). Subjects with
-/// local topic/lesson data (Math, English) build their topics map from
-/// AppData; everything else uses the live catalog's own topics map
-/// directly, same as CourseOverviewScreen.
+/// then handles topic/lesson/question-count/difficulty). Only shows
+/// subjects the student has already picked (user.subjects) - quizzing
+/// on a subject they haven't joined doesn't make sense yet. Subjects
+/// with local topic/lesson data (Math, English) build their topics map
+/// from AppData; everything else uses the live catalog's own topics
+/// map directly, same as CourseOverviewScreen.
 class QuizSubjectPickerScreen extends StatefulWidget {
   const QuizSubjectPickerScreen({super.key});
 
@@ -69,13 +73,22 @@ class _QuizSubjectPickerScreenState extends State<QuizSubjectPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pickedSubjects = context.watch<UserProvider>().user.subjects;
+
     return FXScaffold(
       title: 'Take a Quiz',
-      body: _buildBody(),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.history_edu_outlined),
+          tooltip: 'Quiz History',
+          onPressed: () => context.push('/quiz-history'),
+        ),
+      ],
+      body: _buildBody(pickedSubjects),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(List<String> pickedSubjects) {
     if (_hasError) {
       return Center(
         child: Column(
@@ -89,9 +102,23 @@ class _QuizSubjectPickerScreenState extends State<QuizSubjectPickerScreen> {
       );
     }
 
-    final courses = _courses;
-    if (courses == null) {
+    final allCourses = _courses;
+    if (allCourses == null) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    final courses = allCourses.where((c) => pickedSubjects.contains(c.subject)).toList();
+
+    if (courses.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(
+            "You haven't picked any subjects yet. Pick some from the Subjects tab first.",
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
     }
 
     return ListView.builder(
