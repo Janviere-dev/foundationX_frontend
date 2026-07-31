@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
-import 'package:foundationx_frontend/data/app_data.dart';
 
 import 'package:foundationx_frontend/features/home/widgets/all_subjects_grid.dart';
 import 'package:foundationx_frontend/features/home/widgets/continue_learning_section.dart';
@@ -27,8 +26,6 @@ class HomeScreen extends StatelessWidget {
     final userProvider = context.watch<UserProvider>();
     final user = userProvider.user;
     final unreadNotifications = context.watch<NotificationProvider>().unreadCount;
-
-    final dailyQuiz = AppData.getQuizzesForSubject('math').first;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -61,10 +58,9 @@ class HomeScreen extends StatelessWidget {
 
             SliverToBoxAdapter(
               child: DailyQuizCard(
-                title: dailyQuiz.title,
-                xpReward: dailyQuiz.xpReward,
-                questionCount: dailyQuiz.questions.length,
-                onStart: () => context.push('/quiz', extra: dailyQuiz),
+                title: 'Test Your Knowledge',
+                subtitle: 'Pick a subject and get a fresh AI-generated quiz',
+                onStart: () => context.push('/quiz-subjects'),
               ),
             ),
 
