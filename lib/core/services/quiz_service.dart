@@ -7,10 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:foundationx_frontend/core/config/api_config.dart';
 import 'package:foundationx_frontend/core/models/quiz_assessment.dart';
 
-/// Outcome of a generate call - [resumed] is true when the backend
-/// responded 409 because the student already had an unfinished quiz;
-/// [quiz] is that pending quiz in that case, otherwise the newly
-/// created one. Either way there's a quiz ready to take.
 class QuizGenerationOutcome {
   final QuizzQuestionResponse quiz;
   final bool resumed;
@@ -18,14 +14,17 @@ class QuizGenerationOutcome {
   const QuizGenerationOutcome({required this.quiz, required this.resumed});
 }
 
-/// Assessment quiz endpoints (POST /api/assessment/quizz, /submit,
-/// GET /report/{id}, GET /progress) - generation and grading are both
-/// LLM-backed, so timeouts are generous. Bearer-token protected;
-/// self-contained token fetch, matching ContentService/CoursesService.
 class QuizService {
+  QuizService({http.Client? client, Future<String> Function()? tokenProvider})
+    : _client = client ?? http.Client(),
+      _tokenProvider = tokenProvider ?? _defaultToken;
+
+  final http.Client _client;
+  final Future<String> Function() _tokenProvider;
+
   static const _timeout = Duration(seconds: 90);
 
-  Future<String> _token() async {
+  static Future<String> _defaultToken() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw StateError('No signed-in user to take a quiz as.');
@@ -37,8 +36,6 @@ class QuizService {
     return token;
   }
 
-  /// The backend rejects anything outside this range - clamped here so
-  /// no caller can accidentally send an invalid count.
   static const minQuestions = 5;
   static const maxQuestions = 30;
 
@@ -50,14 +47,14 @@ class QuizService {
   }) async {
     final clampedCount = numberQuestion.clamp(minQuestions, maxQuestions);
 
-    final token = await _token();
+    final token = await _tokenProvider();
     final url = Uri.parse('${ApiConfig.baseUrl}/api/assessment/quizz');
     debugPrint(
       'QuizService.generateQuiz: POST $url (subject=$subject, query=$learningQuery, '
       'n=$clampedCount, level=$quizzLevel)',
     );
 
-    final response = await http
+    final response = await _client
         .post(
           url,
           headers: {
@@ -75,7 +72,9 @@ class QuizService {
 
     if (response.statusCode == 409) {
       return QuizGenerationOutcome(
-        quiz: QuizzQuestionResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>),
+        quiz: QuizzQuestionResponse.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>,
+        ),
         resumed: true,
       );
     }
@@ -85,7 +84,9 @@ class QuizService {
     }
 
     return QuizGenerationOutcome(
-      quiz: QuizzQuestionResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>),
+      quiz: QuizzQuestionResponse.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      ),
       resumed: false,
     );
   }
@@ -94,11 +95,11 @@ class QuizService {
     required String quizzId,
     required List<QuizAnswerSubmission> responses,
   }) async {
-    final token = await _token();
+    final token = await _tokenProvider();
     final url = Uri.parse('${ApiConfig.baseUrl}/api/assessment/quizz/submit');
     debugPrint('QuizService.submitAnswers: POST $url (quizzId=$quizzId)');
 
-    final response = await http
+    final response = await _client
         .post(
           url,
           headers: {
@@ -117,13 +118,13 @@ class QuizService {
     }
   }
 
-  /// Returns null while grading is still in progress (404) - that's
-  /// expected, not an error; callers poll until it stops happening.
   Future<QuizzAssessmentReport?> fetchReport(String quizzId) async {
-    final token = await _token();
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/assessment/quizz/report/$quizzId');
+    final token = await _tokenProvider();
+    final url = Uri.parse(
+      '${ApiConfig.baseUrl}/api/assessment/quizz/report/$quizzId',
+    );
 
-    final response = await http
+    final response = await _client
         .get(url, headers: {'Authorization': 'Bearer $token'})
         .timeout(_timeout);
 
@@ -133,15 +134,17 @@ class QuizService {
       throw Exception('Failed to fetch quiz report (${response.statusCode})');
     }
 
-    return QuizzAssessmentReport.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    return QuizzAssessmentReport.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
   }
 
   Future<QuizProgressSummary> fetchProgress() async {
-    final token = await _token();
+    final token = await _tokenProvider();
     final url = Uri.parse('${ApiConfig.baseUrl}/api/assessment/quizz/progress');
     debugPrint('QuizService.fetchProgress: GET $url');
 
-    final response = await http
+    final response = await _client
         .get(url, headers: {'Authorization': 'Bearer $token'})
         .timeout(_timeout);
 
@@ -149,6 +152,8 @@ class QuizService {
       throw Exception('Failed to fetch quiz history (${response.statusCode})');
     }
 
-    return QuizProgressSummary.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    return QuizProgressSummary.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
   }
 }
