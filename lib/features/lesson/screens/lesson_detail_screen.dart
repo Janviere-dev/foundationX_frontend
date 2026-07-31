@@ -87,12 +87,20 @@ class LessonDetailScreen extends StatelessWidget {
                   runSpacing: 12,
                   children: [
                     Chip(
-                      avatar: const Icon(Icons.schedule, size: 18),
-                      label: Text("${lesson.durationMinutes} min"),
+                      avatar: Icon(Icons.schedule, size: 18, color: subject.color),
+                      label: Text(
+                        "${lesson.durationMinutes} min",
+                        style: TextStyle(color: subject.color, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: subject.color.withValues(alpha: 0.15),
                     ),
                     Chip(
-                      avatar: const Icon(Icons.star, size: 18),
-                      label: Text("${lesson.xpReward} XP"),
+                      avatar: const Icon(Icons.star, size: 18, color: Colors.amber),
+                      label: Text(
+                        "${lesson.xpReward} XP",
+                        style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: Colors.amber.withValues(alpha: 0.15),
                     ),
                     Chip(
                       backgroundColor:

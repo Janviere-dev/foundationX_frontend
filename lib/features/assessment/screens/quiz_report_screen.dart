@@ -68,8 +68,12 @@ class QuizReportScreen extends StatelessWidget {
                 if (report.currentUnderstandingLevel.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Chip(
-                    label: Text(report.currentUnderstandingLevel),
+                    label: Text(
+                      report.currentUnderstandingLevel,
+                      style: TextStyle(color: color, fontWeight: FontWeight.w700),
+                    ),
                     backgroundColor: color.withValues(alpha: 0.18),
+                    side: BorderSide(color: color.withValues(alpha: 0.4)),
                   ),
                 ],
               ],

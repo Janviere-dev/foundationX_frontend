@@ -154,14 +154,26 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                   label: const Text('Whole topic'),
                   selected: _selectedLesson == null,
                   onSelected: (_) => setState(() => _selectedLesson = null),
-                  selectedColor: color.withValues(alpha: 0.18),
+                  backgroundColor: color.withValues(alpha: 0.10),
+                  selectedColor: color,
+                  labelStyle: TextStyle(
+                    color: _selectedLesson == null ? Colors.white : color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  side: BorderSide(color: color.withValues(alpha: 0.4)),
                 ),
                 ...lessons.map(
                   (lesson) => ChoiceChip(
                     label: Text(lesson),
                     selected: _selectedLesson == lesson,
                     onSelected: (_) => setState(() => _selectedLesson = lesson),
-                    selectedColor: color.withValues(alpha: 0.18),
+                    backgroundColor: color.withValues(alpha: 0.10),
+                    selectedColor: color,
+                    labelStyle: TextStyle(
+                      color: _selectedLesson == lesson ? Colors.white : color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    side: BorderSide(color: color.withValues(alpha: 0.4)),
                   ),
                 ),
               ],
@@ -199,7 +211,13 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                     label: Text(level.label),
                     selected: _level == level.value,
                     onSelected: (_) => setState(() => _level = level.value),
-                    selectedColor: color.withValues(alpha: 0.18),
+                    backgroundColor: color.withValues(alpha: 0.10),
+                    selectedColor: color,
+                    labelStyle: TextStyle(
+                      color: _level == level.value ? Colors.white : color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    side: BorderSide(color: color.withValues(alpha: 0.4)),
                   ),
                 )
                 .toList(),

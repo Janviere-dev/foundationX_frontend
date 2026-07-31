@@ -380,15 +380,27 @@ class _ExternalSourcesPanel extends StatelessWidget {
           children: [
             ...sources.articles.map(
               (a) => ActionChip(
-                avatar: const Icon(Icons.article_outlined, size: 16),
-                label: Text(a.articleTitle, overflow: TextOverflow.ellipsis),
+                avatar: const Icon(Icons.article_outlined, size: 16, color: AppColors.primary),
+                label: Text(
+                  a.articleTitle,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                ),
+                backgroundColor: AppColors.primaryLight,
+                side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
                 onPressed: () => _open(a.link),
               ),
             ),
             ...sources.videos.map(
               (v) => ActionChip(
-                avatar: const Icon(Icons.play_circle_outline, size: 16),
-                label: Text(v.videoTitle, overflow: TextOverflow.ellipsis),
+                avatar: const Icon(Icons.play_circle_outline, size: 16, color: AppColors.primary),
+                label: Text(
+                  v.videoTitle,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                ),
+                backgroundColor: AppColors.primaryLight,
+                side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
                 onPressed: () => _open(v.link),
               ),
             ),
