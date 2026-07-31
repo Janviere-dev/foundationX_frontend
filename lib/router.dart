@@ -34,13 +34,7 @@ const _autoForwardToHomePaths = {
   '/verify-email',
 };
 
-/// Screens reachable while signed out, in addition to /login and /register.
 const _unauthenticatedAllowedPaths = {'/forgot-password'};
-
-/// Builds the app's router. [authProvider] doubles as GoRouter's
-/// [GoRouter.refreshListenable], so [AuthProvider.notifyListeners] — fired
-
-/// [AuthProvider.needsProfileCompletion], not just "is Firebase's user
 
 GoRouter buildRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -62,10 +56,6 @@ GoRouter buildRouter(AuthProvider authProvider) {
 
         decision = null;
       } else if (authProvider.needsEmailVerification) {
-        // Verify identity before anything else - onboarding and Home are
-        // both gated behind this for password accounts. Google accounts
-        // come back with emailVerified already true, so this is a no-op
-        // for them.
         decision = onVerifyEmailScreen ? null : '/verify-email';
       } else if (authProvider.needsProfileCompletion) {
         decision = onOnboardingScreen ? null : '/complete-profile';

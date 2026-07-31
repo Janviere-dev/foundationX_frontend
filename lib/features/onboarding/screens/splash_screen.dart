@@ -23,16 +23,8 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool(onboardingSeenKey) ?? false;
 
-    // A short pause so the splash branding is actually visible instead of
-    // flashing for a single frame — not a fake loading delay, just enough
-    // to avoid a jarring instant redirect.
     await Future.delayed(const Duration(milliseconds: 600));
 
-    // TODO(auth): once AuthProvider/session persistence exists, check it
-    // here too — if the user is already logged in, route straight to
-    // '/home' instead of '/login'. Right now there's no persisted auth
-    // state to check, so a returning user who has seen onboarding still
-    // lands on the login screen.
     final nextRoute = hasSeenOnboarding ? '/login' : '/onboarding';
 
     if (!mounted) return;

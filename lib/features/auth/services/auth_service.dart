@@ -21,20 +21,10 @@ class AuthService {
     return AppUser.fromMap(uid, doc.data()!);
   }
 
-  /// Builds an identity-only profile (name/email, no school/grade/subjects)
-  /// for a Firebase user with no Firestore doc yet, deriving the sign-in
-  /// provider from Firebase's own provider data. [AppUser.isComplete] is
-  /// false on the result, which is what tells AuthProvider to route into
-  /// the complete-profile wizard. Public because AuthProvider also uses
-  /// this to resolve a session restored on app launch, not just the
-  /// explicit sign-in flows below.
   AppUser partialProfileFor(User user) {
     final parts = (user.displayName ?? '').trim().split(RegExp(r'\s+'));
     final hasDisplayName = parts.isNotEmpty && parts.first.isNotEmpty;
 
-    // Some Google accounts (freshly created ones especially) don't return
-    // a display name at all. Falling back to the email's local-part keeps
-    // the avatar/greeting from silently rendering blank.
     final firstName =
         hasDisplayName ? parts.first : _fallbackFirstName(user.email);
     final lastName =
@@ -95,10 +85,6 @@ class AuthService {
     return await fetchProfile(user.uid) ?? partialProfileFor(user);
   }
 
-  /// Signs in with Google. Returns the existing Firestore profile for a
-  /// returning user, or an identity-only profile (see [partialProfileFor])
-  /// for a first-time sign-in that still needs school/grade/subjects
-  /// collected via [saveProfile].
   Future<AppUser> signInWithGoogle() async {
     final account = await GoogleSignIn.instance.authenticate();
     final idToken = account.authentication.idToken;
@@ -131,9 +117,6 @@ class AuthService {
     return user.sendEmailVerification();
   }
 
-  /// Firebase doesn't push emailVerified changes to the local User object
-  /// automatically after the link is clicked in another tab/device -
-  /// reload() re-fetches it from the server.
   Future<bool> refreshEmailVerified() async {
     final user = _auth.currentUser;
     if (user == null) return false;
