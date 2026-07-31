@@ -14,9 +14,17 @@ import 'package:foundationx_frontend/features/onboarding/screens/onboarding_scre
 import 'package:foundationx_frontend/features/onboarding/screens/splash_screen.dart';
 import 'package:foundationx_frontend/features/home/screens/main_navigation.dart';
 import 'package:foundationx_frontend/features/subjects/screens/subject_detail_screen.dart';
+import 'package:foundationx_frontend/features/subjects/screens/course_overview_screen.dart';
 import 'package:foundationx_frontend/features/lesson/screens/lesson_detail_screen.dart';
+import 'package:foundationx_frontend/features/lesson/screens/catalog_lesson_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_screen.dart';
 import 'package:foundationx_frontend/features/quiz/screens/quiz_result_screen.dart';
+import 'package:foundationx_frontend/features/assessment/screens/quiz_subject_picker_screen.dart';
+import 'package:foundationx_frontend/features/assessment/screens/quiz_setup_screen.dart';
+import 'package:foundationx_frontend/features/assessment/screens/quiz_taking_screen.dart';
+import 'package:foundationx_frontend/features/assessment/screens/quiz_grading_screen.dart';
+import 'package:foundationx_frontend/features/assessment/screens/quiz_report_screen.dart';
+import 'package:foundationx_frontend/features/assessment/screens/quiz_history_screen.dart';
 import 'package:foundationx_frontend/features/profile/screens/edit_profile_screen.dart';
 import 'package:foundationx_frontend/features/settings/screens/settings_screen.dart';
 import 'package:foundationx_frontend/features/notifications/screens/notifications_screen.dart';
@@ -159,12 +167,31 @@ GoRouter buildRouter(AuthProvider authProvider) {
       ),
 
       GoRoute(
+        path: '/course',
+        builder: (context, state) => CourseOverviewScreen(
+          course: state.extra as Course,
+        ),
+      ),
+
+      GoRoute(
         path: '/lesson/:id',
         builder: (context, state) {
           final lesson = state.extra as LessonModel;
 
           return LessonDetailScreen(
             lesson: lesson,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/catalog-lesson',
+        builder: (context, state) {
+          final args = state.extra as Map;
+
+          return CatalogLessonScreen(
+            subject: args['subject'] as String,
+            lessonTitle: args['lessonTitle'] as String,
           );
         },
       ),
@@ -178,6 +205,56 @@ GoRouter buildRouter(AuthProvider authProvider) {
             quiz: quiz,
           );
         },
+      ),
+
+      GoRoute(
+        path: '/quiz-subjects',
+        builder: (context, state) => const QuizSubjectPickerScreen(),
+      ),
+
+      GoRoute(
+        path: '/quiz-setup',
+        builder: (context, state) {
+          final args = state.extra as Map;
+
+          return QuizSetupScreen(
+            subject: args['subject'] as String,
+            topics: (args['topics'] as Map).map(
+              (key, value) => MapEntry(key as String, (value as List).cast<String>()),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/quiz-taking',
+        builder: (context, state) => QuizTakingScreen(
+          quiz: state.extra as QuizzQuestionResponse,
+        ),
+      ),
+
+      GoRoute(
+        path: '/quiz-grading',
+        builder: (context, state) {
+          final args = state.extra as Map;
+
+          return QuizGradingScreen(
+            quizzId: args['quizzId'] as String,
+            subject: args['subject'] as String,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/quiz-report',
+        builder: (context, state) => QuizReportScreen(
+          report: state.extra as QuizzAssessmentReport,
+        ),
+      ),
+
+      GoRoute(
+        path: '/quiz-history',
+        builder: (context, state) => const QuizHistoryScreen(),
       ),
 
       GoRoute(

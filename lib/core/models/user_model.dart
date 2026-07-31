@@ -35,6 +35,7 @@ class UserModel {
   int? xpPoints,
   int? level,
   int? streak,
+  List<String>? subjects,
 }) {
   return UserModel(
     id: id,
@@ -46,7 +47,7 @@ class UserModel {
     school: school,
     username: username,
     gender: gender,
-    subjects: subjects,
+    subjects: subjects ?? this.subjects,
     goals: goals,
     dateOfBirth: dateOfBirth,
     xpPoints: xpPoints ?? this.xpPoints,

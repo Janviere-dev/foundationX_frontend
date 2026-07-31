@@ -13,13 +13,14 @@ class AuthService {
 
   final FirebaseAuth _auth;
 
-  /// Firebase ID tokens expire hourly and the SDK auto-refreshes them
-  /// under the hood, so this is fetched fresh per request rather than
-  /// cached on the service. [forceRefresh] mints a brand-new token instead
-  /// of returning the cached one - needed before extend_info, since the
-  /// backend reads email_verified off the token's own claim rather than
-  /// the request body, and the cached token can still carry the
-  /// pre-verification value.
+  static const _timeout = Duration(seconds: 20);
+
+  Uri _url(String path) {
+    final uri = Uri.parse('${ApiConfig.baseUrl}$path');
+    debugPrint('AuthService: $uri');
+    return uri;
+  }
+
   Future<String> _idToken({bool forceRefresh = false}) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -28,7 +29,7 @@ class AuthService {
       );
     }
 
-    final token = await user.getIdToken(forceRefresh);
+    final token = await user.getIdToken(forceRefresh).timeout(_timeout);
     if (token == null) {
       throw StateError('Failed to obtain a Firebase ID token.');
     }
@@ -36,19 +37,21 @@ class AuthService {
     return token;
   }
 
-  Future<Map<String, String>> _headers({bool forceRefreshToken = false}) async => {
-        'Authorization': 'Bearer ${await _idToken(forceRefresh: forceRefreshToken)}',
-        'Content-Type': 'application/json',
-      };
+  Future<Map<String, String>> _headers({
+    bool forceRefreshToken = false,
+  }) async => {
+    'Authorization':
+        'Bearer ${await _idToken(forceRefresh: forceRefreshToken)}',
+    'Content-Type': 'application/json',
+  };
 
-  /// 200 -> the stored backend profile. 404 -> no backend record exists
-  /// yet for this uid (create_user was never called for them), which the
-  /// caller treats the same as today's "no profile yet" case.
   Future<AppUser?> fetchProfile(String uid) async {
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/users/me'),
-      headers: await _headers(),
-    );
+    final response = await http
+        .get(
+          _url('/api/users/me'),
+          headers: await _headers(),
+        )
+        .timeout(_timeout);
 
     if (response.statusCode == 404) return null;
 
@@ -60,26 +63,17 @@ class AuthService {
     return AppUser.fromApi(data, photoUrl: _auth.currentUser?.photoURL);
   }
 
-  /// Builds an identity-only profile (name/email, no school/grade/subjects)
-  /// for a Firebase user with no backend record yet, deriving the sign-in
-  /// provider from Firebase's own provider data. [AppUser.isComplete] is
-  /// false on the result, which is what tells AuthProvider to route into
-  /// the complete-profile wizard. Public because AuthProvider also uses
-  /// this to resolve a session restored on app launch, not just the
-  /// explicit sign-in flows below.
   AppUser partialProfileFor(User user) {
     final parts = (user.displayName ?? '').trim().split(RegExp(r'\s+'));
     final hasDisplayName = parts.isNotEmpty && parts.first.isNotEmpty;
 
-    // Some Google accounts (freshly created ones especially) don't return
-    // a display name at all. Falling back to the email's local-part keeps
-    // the avatar/greeting from silently rendering blank.
-    final firstName =
-        hasDisplayName ? parts.first : _fallbackFirstName(user.email);
-    final lastName =
-        hasDisplayName && parts.length > 1 ? parts.sublist(1).join(' ') : '';
-    final isGoogle =
-        user.providerData.any((p) => p.providerId == 'google.com');
+    final firstName = hasDisplayName
+        ? parts.first
+        : _fallbackFirstName(user.email);
+    final lastName = hasDisplayName && parts.length > 1
+        ? parts.sublist(1).join(' ')
+        : '';
+    final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
 
     return AppUser(
       uid: user.uid,
@@ -98,14 +92,13 @@ class AuthService {
     return localPart[0].toUpperCase() + localPart.substring(1);
   }
 
-  /// Tells the backend a Firebase-authenticated user exists so it can
-  /// create its own record for them. Safe to call after every sign-in -
-  /// it no-ops server-side if the user already exists.
   Future<void> createUser() async {
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/users/create_user'),
-      headers: await _headers(),
-    );
+    final response = await http
+        .post(
+          _url('/api/users/create_user'),
+          headers: await _headers(),
+        )
+        .timeout(_timeout);
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       debugPrint(
@@ -152,10 +145,6 @@ class AuthService {
     return await fetchProfile(user.uid) ?? partialProfileFor(user);
   }
 
-  /// Signs in with Google. Returns the existing backend profile for a
-  /// returning user, or an identity-only profile (see [partialProfileFor])
-  /// for a first-time sign-in that still needs school/grade/subjects
-  /// collected via [saveProfile].
   Future<AppUser> signInWithGoogle() async {
     final account = await GoogleSignIn.instance.authenticate();
     final idToken = account.authentication.idToken;
@@ -169,10 +158,6 @@ class AuthService {
   }
 
   Future<AppUser> saveProfile(AppUser profile) async {
-    // reload() pulls the latest emailVerified status down from Firebase,
-    // then forcing the token refresh (rather than reusing a cached one)
-    // mints a new token whose own email_verified claim reflects it - the
-    // backend sets email_verified from that claim, not from this body.
     await _auth.currentUser?.reload();
 
     final body = {
@@ -180,17 +165,35 @@ class AuthService {
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     };
 
-    final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/users/extend_info'),
-      headers: await _headers(forceRefreshToken: true),
-      body: jsonEncode(body),
-    );
+    final response = await http
+        .put(
+          _url('/api/users/extend_info'),
+          headers: await _headers(forceRefreshToken: true),
+          body: jsonEncode(body),
+        )
+        .timeout(_timeout);
 
     if (response.statusCode != 200) {
       throw Exception('Failed to save profile (${response.statusCode})');
     }
 
     return profile;
+  }
+
+  /// Enrolls the signed-in user in [subject] (its catalog name, e.g.
+  /// "Chemistry") via PATCH /api/users/subjects.
+  Future<void> addSubject(String subject) async {
+    final response = await http
+        .patch(
+          _url('/api/users/subjects'),
+          headers: await _headers(),
+          body: jsonEncode({'subject': subject}),
+        )
+        .timeout(_timeout);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add subject (${response.statusCode})');
+    }
   }
 
   Future<void> sendPasswordResetEmail(String email) {
@@ -205,9 +208,6 @@ class AuthService {
     return user.sendEmailVerification();
   }
 
-  /// Firebase doesn't push emailVerified changes to the local User object
-  /// automatically after the link is clicked in another tab/device -
-  /// reload() re-fetches it from the server.
   Future<bool> refreshEmailVerified() async {
     final user = _auth.currentUser;
     if (user == null) return false;

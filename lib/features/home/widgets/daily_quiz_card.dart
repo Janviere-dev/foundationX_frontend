@@ -6,15 +6,13 @@ import 'package:foundationx_frontend/core/constants/app_spacing.dart';
 
 class DailyQuizCard extends StatelessWidget {
   final String title;
-  final int xpReward;
-  final int questionCount;
+  final String subtitle;
   final VoidCallback? onStart;
 
   const DailyQuizCard({
     super.key,
     required this.title,
-    required this.xpReward,
-    required this.questionCount,
+    required this.subtitle,
     this.onStart,
   });
 
@@ -76,7 +74,7 @@ class DailyQuizCard extends StatelessWidget {
                 const SizedBox(height: 6),
 
                 Text(
-                  "Earn $xpReward XP · $questionCount questions",
+                  subtitle,
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13),
                 ),
               ],

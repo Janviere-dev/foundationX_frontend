@@ -4,19 +4,23 @@ import 'package:foundationx_frontend/data/english_data.dart';
 import 'package:foundationx_frontend/data/biology_data.dart';
 import 'package:foundationx_frontend/data/physics_data.dart';
 
+/// Only Mathematics and English have complete local topic/lesson
+/// metadata (id, duration, difficulty - actual content is always
+/// AI-generated on demand, see ContentService). Biology and Physics
+/// data files are missing most of their lessons, so those two subjects
+/// are deliberately left out of `subjects`/`lessons` here: every nav
+/// site that matches on `AppData.subjects` by name falls through to the
+/// live-catalog flow (CourseOverviewScreen) for them instead, which
+/// pulls real topics/subtopics from GET /api/courses/.
 class AppData {
   static List<SubjectModel> get subjects => [
         MathematicsData.subject,
         EnglishData.subject,
-        BiologyData.subject,
-        PhysicsData.subject,
       ];
 
   static List<LessonModel> get lessons => [
         ...MathematicsData.lessons,
         ...EnglishData.lessons,
-        ...BiologyData.lessons,
-        ...PhysicsData.lessons,
       ];
 
   static List<TopicModel> getTopicsForSubject(String subjectId) {
