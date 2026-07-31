@@ -7,6 +7,7 @@ import 'package:foundationx_frontend/core/models/models.dart';
 import 'package:foundationx_frontend/core/providers/app_providers.dart';
 import 'package:foundationx_frontend/core/providers/lesson_provider.dart';
 import 'package:foundationx_frontend/features/lesson/widgets/generated_lesson_body.dart';
+import 'package:foundationx_frontend/features/notifications/providers/notification_provider.dart';
 
 class LessonDetailScreen extends StatelessWidget {
   final LessonModel lesson;
@@ -150,6 +151,13 @@ class LessonDetailScreen extends StatelessWidget {
                           await lessonProvider.completeLesson(lesson.id);
 
                           userProvider.addXP(lesson.xpReward);
+
+                          if (context.mounted) {
+                            context.read<NotificationProvider>().addNotification(
+                                  title: 'Lesson completed!',
+                                  body: '${lesson.title} - +${lesson.xpReward} XP earned',
+                                );
+                          }
 
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
