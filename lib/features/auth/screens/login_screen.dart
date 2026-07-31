@@ -197,15 +197,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           Checkbox(
                             value: _rememberMe,
                             activeColor: primary,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
                             onChanged: (value) {
                               setState(() {
                                 _rememberMe = value ?? false;
                               });
                             },
                           ),
+                          const SizedBox(width: 4),
                           const Text("Remember me"),
                           const Spacer(),
                           TextButton(
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
                             onPressed: () => context.push('/forgot-password'),
                             child: const Text("Forgot Password?"),
                           )
